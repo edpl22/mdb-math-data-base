@@ -1,0 +1,13 @@
+# Perfil "local": roda a API Java SEM PostgreSQL/Docker, usando H2 em arquivo (modo PostgreSQL).
+# As mesmas migrations Flyway (schema + dados de exemplo) são aplicadas na primeira execução.
+# Uso:  ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+# Os dados ficam em backend-java/data/ (apague a pasta para recomeçar do zero).
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/mdb-local;MODE=PostgreSQL;AUTO_SERVER=TRUE
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
