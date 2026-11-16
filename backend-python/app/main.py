@@ -1,104 +1,237 @@
+"""API Python do MDB, feita em Flask.
+
+Responsável pelas "ferramentas" da plataforma: sorteio de questão, gerador de simulados,
+estatísticas do catálogo e importação/exportação de CSV. Os dados dos problemas vêm da
+API Java (Spring Boot, porta 8080) via HTTP; este serviço nunca acessa o banco diretamente.
+
+Cada rota é declarada com os decorators do Flask:
+    @app.get("/rota")   → responde a requisições GET
+    @app.post("/rota")  → responde a requisições POST
+
+Como executar (dentro de backend-python/, com o ambiente virtual ativo):
+    flask --app app.main run --port 8000
+"""
+
 import logging
 import os
+from typing import Optional
 
 import httpx
-from fastapi import Depends, FastAPI, Request, status
-from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
+from flask import Flask, Response, current_app, jsonify, request
+from flask_cors import CORS
+from pydantic import ValidationError
+from werkzeug.exceptions import HTTPException
 
 from app.clients.java_client import JavaApiClient, JavaApiError, get_java_client
-from app.routers import csv_router, mock_exam_router, random_router, stats_router
+from app.core.config import get_settings
+from app.core.errors import ApiError
+from app.core.security import extract_bearer_token, require_admin
+from app.schemas.mock_exam import MockExamRequest, MockExamResponse
+from app.schemas.stats import CatalogStats
+from app.services.csv_service import export_rows, import_rows, parse_csv
+from app.services.mock_exam_service import InsufficientProblemsError, build_mock_exam
+from app.services.random_service import NoProblemsFoundError, pick_random_problem
+from app.services.selection_service import fetch_pool
+from app.services.stats_service import build_stats
 
 logger = logging.getLogger("mdb.tools")
 
-app = FastAPI(
-    title="MDB - Math Data Base - API Python (ferramentas)",
-    description=(
-        "Microsserviço FastAPI responsável por importação/exportação de CSV, sorteio de "
-        "questão, geração de simulados e estatísticas do catálogo. Consome a API Java "
-        "(/api/...) como fonte dos dados — nunca acessa o PostgreSQL diretamente."
-    ),
-    version="1.0.0",
-)
+app = Flask(__name__)
+app.json.sort_keys = False   # mantém a ordem dos campos no JSON de resposta
+app.json.ensure_ascii = False  # acentos legíveis no JSON
 
+# CORS: libera o front-end (outra porta) a chamar esta API pelo navegador.
 allowed_origins = os.getenv(
     "CORS_ALLOWED_ORIGINS", "http://localhost:5500,http://localhost:8081,http://localhost:3000"
 ).split(",")
+CORS(app, origins=allowed_origins, supports_credentials=True)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-app.include_router(csv_router.router)
-app.include_router(random_router.router)
-app.include_router(mock_exam_router.router)
-app.include_router(stats_router.router)
+def java_client() -> JavaApiClient:
+    """Cliente HTTP da API Java. Os testes trocam por um cliente falso via app.config["JAVA_CLIENT"]."""
+    return current_app.config.get("JAVA_CLIENT") or get_java_client()
 
 
 # ---------------------------------------------------------------------------
-# Tratamento global de erros: toda falha vira JSON {"detail": "..."} com o
-# status HTTP adequado, sem derrubar o serviço nem expor stack traces.
+# Leitura e validação de parâmetros
 # ---------------------------------------------------------------------------
 
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(_: Request, exc: StarletteHTTPException):
-    detail = exc.detail
-    if exc.status_code == 404 and detail == "Not Found":
-        detail = "Rota não encontrada."
-    elif exc.status_code == 405 and detail == "Method Not Allowed":
-        detail = "Método não suportado nesta rota."
-    return JSONResponse(status_code=exc.status_code, content={"detail": detail}, headers=exc.headers)
+def query_int(name: str, minimum: int = 1, maximum: int = 5) -> Optional[int]:
+    """Lê um parâmetro inteiro opcional da query string (?minDifficulty=2), validando o intervalo."""
+    raw = request.args.get(name)
+    if raw is None or raw == "":
+        return None
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise ApiError(422, f"Dados inválidos — {name}: deve ser um número inteiro") from exc
+    if not minimum <= value <= maximum:
+        raise ApiError(422, f"Dados inválidos — {name}: deve estar entre {minimum} e {maximum}")
+    return value
 
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(_: Request, exc: RequestValidationError):
-    errors = []
-    for err in exc.errors():
-        field = ".".join(str(part) for part in err.get("loc", []) if part not in ("body", "query", "path"))
-        message = str(err.get("msg", "valor inválido")).removeprefix("Value error, ")
-        errors.append(f"{field}: {message}" if field else message)
-    return JSONResponse(
-        status_code=422,
-        content={"detail": "Dados inválidos — " + "; ".join(errors), "errors": errors},
-    )
+def problem_filters() -> dict:
+    """Filtros opcionais comuns ao sorteio e à exportação."""
+    return {
+        "area": request.args.get("area") or None,
+        "tag": request.args.get("tag") or None,
+        "min_difficulty": query_int("minDifficulty"),
+        "max_difficulty": query_int("maxDifficulty"),
+    }
 
 
-@app.exception_handler(JavaApiError)
-async def java_api_error_handler(_: Request, exc: JavaApiError):
-    """Erros devolvidos pela API Java são repassados com o mesmo status e mensagem."""
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
+# ---------------------------------------------------------------------------
+# Rotas
+# ---------------------------------------------------------------------------
 
-
-@app.exception_handler(httpx.HTTPError)
-async def java_unreachable_handler(_: Request, exc: httpx.HTTPError):
-    """API Java fora do ar ou lenta demais: responde 503 em vez de um 500 genérico."""
-    logger.warning("Falha ao comunicar com a API Java: %s", exc)
-    return JSONResponse(
-        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        content={"detail": "A API Java está indisponível no momento. Verifique se ela está rodando na porta 8080."},
-    )
-
-
-@app.exception_handler(Exception)
-async def unexpected_error_handler(_: Request, exc: Exception):
-    logger.exception("Erro inesperado", exc_info=exc)
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Ocorreu um erro inesperado na API Python."},
-    )
-
-
-@app.get("/health", tags=["Health"])
-def health(client: JavaApiClient = Depends(get_java_client)):
+@app.get("/health")
+def health():
     """Saúde do serviço Python e, de quebra, se ele consegue alcançar a API Java."""
     try:
-        java_status = "ok" if client.ping() else "error"
+        java_status = "ok" if java_client().ping() else "error"
     except httpx.HTTPError:
         java_status = "unreachable"
-    return {"status": "ok", "service": "api-python", "framework": "FastAPI", "javaApi": java_status}
+    return jsonify(status="ok", service="api-python", framework="Flask", javaApi=java_status)
+
+
+@app.get("/tools/random-problem")
+def random_problem():
+    """Sorteia um problema que respeite os filtros opcionais (?area=&tag=&minDifficulty=&maxDifficulty=)."""
+    filters = problem_filters()
+    try:
+        problem = pick_random_problem(java_client(), get_settings(), **filters)
+    except NoProblemsFoundError as exc:
+        raise ApiError(404, str(exc)) from exc
+    return jsonify(problem)
+
+
+@app.post("/tools/mock-exam")
+def mock_exam():
+    """Gera um simulado: sorteia, sem repetição, `quantity` problemas compatíveis com os filtros.
+
+    Corpo JSON: {"quantity": 5, "area": "Algebra", "minDifficulty": 1, "maxDifficulty": 5,
+                 "includeStatements": true}
+    """
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        raise ApiError(400, "Envie um corpo JSON, por exemplo {\"quantity\": 5}.")
+    exam_request = MockExamRequest.model_validate(body)  # ValidationError → 422 (handler abaixo)
+
+    client = java_client()
+    try:
+        problems = build_mock_exam(client, get_settings(), exam_request)
+    except InsufficientProblemsError as exc:
+        raise ApiError(400, str(exc)) from exc
+
+    if exam_request.includeStatements:
+        # Busca o detalhe completo de cada questão na API Java (enunciado, dica e solução).
+        problems = [client.get_problem(p["id"]) for p in problems]
+
+    response = MockExamResponse(problems=problems)
+    return jsonify(response.model_dump())
+
+
+@app.get("/tools/stats")
+def catalog_stats():
+    """Estatísticas do catálogo: total, distribuição por área e por dificuldade, tópicos frequentes."""
+    stats = build_stats(java_client(), get_settings().max_pool_size_for_selection)
+    return jsonify(CatalogStats.model_validate(stats).model_dump())
+
+
+@app.post("/tools/csv/import")
+def import_csv():
+    """Importa problemas de um CSV (multipart, campo "file"). Exige token de ADMIN.
+
+    Cabeçalho do CSV: id,titulo,enunciado,area,dificuldade,dica,solucao,fonte.
+    Linhas inválidas são reportadas, mas não impedem a importação das válidas.
+    """
+    token = extract_bearer_token(request.headers.get("Authorization"))
+    client = java_client()
+    require_admin(token, client)
+
+    file = request.files.get("file")
+    if file is None or not file.filename:
+        raise ApiError(400, "Envie o arquivo no campo \"file\" (multipart/form-data).")
+    if not file.filename.lower().endswith(".csv"):
+        raise ApiError(400, "O arquivo enviado deve ser um .csv")
+
+    content = file.read()
+    if not content:
+        raise ApiError(400, "Arquivo CSV vazio.")
+    try:
+        rows = parse_csv(content)
+    except UnicodeDecodeError as exc:
+        raise ApiError(400, "Não foi possível ler o arquivo como texto UTF-8.") from exc
+    if not rows:
+        raise ApiError(400, "O CSV não contém linhas de dados.")
+
+    result = import_rows(rows, token, client)
+    return jsonify(result.model_dump())
+
+
+@app.get("/tools/csv/export")
+def export_csv():
+    """Exporta o catálogo (com filtros opcionais) para um arquivo CSV. Exige token de ADMIN."""
+    token = extract_bearer_token(request.headers.get("Authorization"))
+    client = java_client()
+    require_admin(token, client)
+
+    filters = problem_filters()
+    summaries = fetch_pool(client, max_pool_size=get_settings().max_pool_size_for_selection, **filters)
+    details = [client.get_problem(summary["id"], token) for summary in summaries]
+
+    return Response(
+        export_rows(details),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=mdb_problemas_export.csv"},
+    )
+
+
+# ---------------------------------------------------------------------------
+# Tratamento global de erros: toda falha vira JSON {"detail": "..."} com o status
+# HTTP adequado, sem derrubar o serviço nem expor stack traces.
+# ---------------------------------------------------------------------------
+
+@app.errorhandler(ApiError)
+def handle_api_error(exc: ApiError):
+    return jsonify(detail=exc.detail), exc.status_code
+
+
+@app.errorhandler(ValidationError)
+def handle_validation_error(exc: ValidationError):
+    errors = []
+    for err in exc.errors():
+        field = ".".join(str(part) for part in err.get("loc", []))
+        message = str(err.get("msg", "valor inválido")).removeprefix("Value error, ")
+        errors.append(f"{field}: {message}" if field else message)
+    return jsonify(detail="Dados inválidos — " + "; ".join(errors), errors=errors), 422
+
+
+@app.errorhandler(JavaApiError)
+def handle_java_api_error(exc: JavaApiError):
+    """Erros devolvidos pela API Java são repassados com o mesmo status e mensagem."""
+    return jsonify(detail=exc.message), exc.status_code
+
+
+@app.errorhandler(httpx.HTTPError)
+def handle_java_unreachable(exc: httpx.HTTPError):
+    """API Java fora do ar ou lenta demais: responde 503 em vez de um 500 genérico."""
+    logger.warning("Falha ao comunicar com a API Java: %s", exc)
+    return jsonify(detail="A API Java está indisponível no momento. Verifique se ela está rodando na porta 8080."), 503
+
+
+@app.errorhandler(HTTPException)
+def handle_http_exception(exc: HTTPException):
+    messages = {404: "Rota não encontrada.", 405: "Método não suportado nesta rota."}
+    return jsonify(detail=messages.get(exc.code, exc.description)), exc.code
+
+
+@app.errorhandler(Exception)
+def handle_unexpected(exc: Exception):
+    logger.exception("Erro inesperado", exc_info=exc)
+    return jsonify(detail="Ocorreu um erro inesperado na API Python."), 500
+
+
+if __name__ == "__main__":
+    # Alternativa ao comando "flask": python -m app.main
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "8000")))

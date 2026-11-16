@@ -17,7 +17,7 @@ não serão usadas e deixe três terminais abertos na pasta do projeto.
 
 1. Terminal 1: `cd backend-java` e `./mvnw spring-boot:run -Dspring-boot.run.profiles=local`.
    Mostre `Started MdbBackendApplication` e a porta **8080**.
-2. Terminal 2: `cd backend-python` e `uvicorn app.main:app --port 8000`. Mostre a porta **8000**.
+2. Terminal 2: `cd backend-python` e `flask --app app.main run --port 8000`. Mostre a porta **8000**.
 3. Terminal 3: `cd frontend-web` e `python -m http.server 8081`.
 4. Abra http://localhost:8081 e aponte os **dois indicadores verdes** no rodapé.
 
@@ -49,7 +49,7 @@ não serão usadas e deixe três terminais abertos na pasta do projeto.
   Java/Python.
 - Abra **F12 → Network**, filtre por `8000` e depois por `8080`, e mostre uma requisição de cada
   (por exemplo `POST /tools/mock-exam` e `PUT /api/problems/3/status`) com o JSON de resposta.
-- Opcional: mostre o Swagger das duas APIs (`:8080/swagger-ui.html` e `:8000/docs`).
+- Opcional: mostre o Swagger da API Java (`:8080/swagger-ui.html`).
 - Opcional: derrube a API Java, mostre o indicador vermelho no rodapé e `GET :8000/health`
   respondendo `"javaApi": "unreachable"`, sem que nada quebre.
 
@@ -57,8 +57,9 @@ não serão usadas e deixe três terminais abertos na pasta do projeto.
 
 - **Java**: `backend-java/.../controller/ProblemController.java`, o método `GET /api/problems`
   (busca com filtros). Mencione o `GlobalExceptionHandler`.
-- **Python**: `backend-python/app/routers/mock_exam_router.py`, o `POST /tools/mock-exam`. Mostre
-  também `app/clients/java_client.py`, que é como o Python consulta a API Java.
+- **Python**: `backend-python/app/main.py`, a função decorada com `@app.post("/tools/mock-exam")`
+  (e, para comparar, uma com `@app.get`). Mostre também `app/clients/java_client.py`, que é como
+  o Python consulta a API Java.
 - **Front-end**: `frontend-web/js/api.js`, nos objetos `JavaApi` e `PythonApi` e na função
   `request()`. Depois mostre uma chamada sendo usada, por exemplo `PythonApi.mockExam(payload)`
   em `js/mock-exam.js`.

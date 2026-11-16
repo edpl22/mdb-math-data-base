@@ -12,7 +12,7 @@
                                     ▼     ▼
                     ┌───────────────────┐   ┌─────────────────────────┐
                     │   backend-java     │   │      backend-python      │
-                    │  (Spring Boot)     │◄──┤       (FastAPI)           │
+                    │  (Spring Boot)     │◄──┤        (Flask)            │
                     │  núcleo do domínio │   │  CSV, sorteio, simulados  │
                     └─────────┬──────────┘   └───────────────────────────┘
                               │                  (consome a API Java via HTTP;
@@ -35,7 +35,7 @@ acessar as mesmas tabelas do PostgreSQL, arriscando inconsistência), a divisão
 - **backend-java (Spring Boot)** é o núcleo transacional: dono do schema, das regras de negócio
   centrais (unicidade de avaliação de dificuldade, permissões ADMIN/USER, autenticação) e de toda
   escrita/leitura direta no PostgreSQL via Spring Data JPA.
-- **backend-python (FastAPI)** é uma camada de **processamento de arquivos e seleção de dados**
+- **backend-python (Flask)** é uma camada de **processamento de arquivos e seleção de dados**
   (import/export de CSV, sorteio aleatório, geração de simulados) — tarefas mais naturais em
   Python (manipulação de arquivos, scripts de seleção) e que não precisam de acesso direto ao
   banco: tudo o que ele precisa (buscar problemas, cadastrar problemas a partir do CSV) já existe

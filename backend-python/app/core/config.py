@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Configuracao central do microsservico Python (FastAPI).
+    """Configuracao central do microsservico Python (Flask).
 
     O servico Python nao acessa o PostgreSQL diretamente: ele consome a API
     Java (`java_api_base_url`) para ler e gravar problemas, evitando duas

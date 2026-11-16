@@ -5,7 +5,7 @@ filtros combináveis, avaliação comunitária de dificuldade, favoritos, sortei
 gerador de simulados imprimíveis (com gabarito) e importação/exportação em CSV.
 
 Projeto Final da disciplina **Laboratório de Programação II** — integra **duas APIs REST
-independentes** (Java/Spring Boot e Python/FastAPI) consumidas por **um front-end web**.
+independentes** (Java/Spring Boot e Python/Flask) consumidas por **um front-end web**.
 
 ## Integrantes
 
@@ -13,7 +13,7 @@ independentes** (Java/Spring Boot e Python/FastAPI) consumidas por **um front-en
 |---|---|
 | Palos | Back-end: arquitetura geral, integração entre as APIs, banco de dados (migrations Flyway), Docker Compose |
 | Oliveira | API Java (Spring Boot): autenticação JWT, CRUD de problemas, áreas, tags, avaliações de dificuldade e status |
-| Mendes | API Python (FastAPI): sorteio, gerador de simulados, estatísticas do catálogo, importação/exportação de CSV |
+| Mendes | API Python (Flask): sorteio, gerador de simulados, estatísticas do catálogo, importação/exportação de CSV |
 | Davi Braga | Front-end (HTML/CSS/JS): páginas, consumo das duas APIs, inspetor de integração, layout responsivo |
 
 ## Sumário
@@ -29,6 +29,7 @@ independentes** (Java/Spring Boot e Python/FastAPI) consumidas por **um front-en
 - [Testes](#testes)
 - [Credenciais de demonstração](#credenciais-de-demonstração)
 
+Explicação do código, passo a passo (back-end e front-end): [docs/PASSO_A_PASSO.md](docs/PASSO_A_PASSO.md).
 Roteiro sugerido para o vídeo de apresentação: [docs/ROTEIRO_VIDEO.md](docs/ROTEIRO_VIDEO.md).
 
 ## Visão geral
@@ -40,7 +41,7 @@ Roteiro sugerido para o vídeo de apresentação: [docs/ROTEIRO_VIDEO.md](docs/R
                /api/... (JSON+JWT) │            │ /tools/... (JSON)
                                    ▼            ▼
    ┌──────────────────────────────────┐   ┌──────────────────────────────────┐
-   │ API Java — Spring Boot  :8080    │◄──│ API Python — FastAPI  :8000      │
+   │ API Java — Spring Boot  :8080    │◄──│ API Python — Flask    :8000      │
    │ usuários, login JWT, problemas,  │   │ sorteio, simulados, estatísticas,│
    │ áreas, tags, avaliações, status  │   │ importação/exportação de CSV     │
    └───────────────┬──────────────────┘   └──────────────────────────────────┘
@@ -66,7 +67,7 @@ Fora do escopo, por decisão de projeto: fórum, chat, correção automática e 
 | Parte | Tecnologias |
 |---|---|
 | API Java (`backend-java/`) | Java 17+, Spring Boot 3.3, Spring Web, Spring Data JPA, Spring Security (JWT + BCrypt), Bean Validation, Flyway, springdoc-openapi (Swagger), Maven Wrapper |
-| API Python (`backend-python/`) | Python 3.11+, FastAPI, Uvicorn, httpx, Pydantic |
+| API Python (`backend-python/`) | Python 3.11+, Flask (rotas com `@app.get` / `@app.post`), Flask-CORS, httpx, Pydantic |
 | Front-end (`frontend-web/`) | HTML5, CSS3, JavaScript puro (sem framework), MathJax para LaTeX |
 | Banco de dados | PostgreSQL 16 (Docker) **ou** H2 em arquivo (perfil `local`, sem instalar nada) |
 | Testes | JUnit 5, Mockito, MockMvc (Java) · pytest (Python) |
@@ -77,7 +78,7 @@ Fora do escopo, por decisão de projeto: fórum, chat, correção automática e 
 ```
 mdb-main/
 ├── backend-java/     # API Java (Spring Boot)    → porta 8080
-├── backend-python/   # API Python (FastAPI)      → porta 8000
+├── backend-python/   # API Python (Flask)        → porta 8000
 ├── frontend-web/     # Front-end (HTML/CSS/JS)   → porta 8081
 ├── database/         # Modelo de dados de referência + CSV de exemplo
 ├── docs/             # Documentação detalhada (arquitetura, API, banco, roteiro do vídeo)
@@ -128,11 +129,11 @@ source .venv/Scripts/activate      # Git Bash (Windows)
 .venv\Scripts\activate             # PowerShell/CMD (Windows)
 
 pip install -r requirements.txt
-uvicorn app.main:app --port 8000
+flask --app app.main run --port 8000
 ```
 
 Teste rápido: http://localhost:8000/health (deve responder `"javaApi": "ok"` quando a API Java
-estiver no ar) · Swagger: http://localhost:8000/docs
+estiver no ar). Alternativa ao comando `flask`: `python -m app.main`.
 
 **Terminal 3 — Front-end (porta 8081)**
 
@@ -160,7 +161,7 @@ docker compose up --build
 |---|---|
 | Front-end (nginx) | http://localhost:8081 |
 | API Java + Swagger | http://localhost:8080 · `/swagger-ui.html` |
-| API Python + Swagger | http://localhost:8000 · `/docs` |
+| API Python | http://localhost:8000 · `/health` |
 | PostgreSQL | `localhost:5432` |
 
 As portas podem ser alteradas no `.env` (`JAVA_PORT`, `PYTHON_PORT`, `FRONTEND_PORT`, `DB_PORT`).
@@ -254,7 +255,7 @@ a aplicação.
   (`400`), JSON malformado (`400`), parâmetro com tipo errado como `/api/problems/abc` (`400`),
   não autenticado (`401`), sem permissão (`403`), recurso inexistente como `/api/problems/999`
   (`404`), duplicidade (`409`) e erro inesperado (`500`, sem expor stack trace).
-- **Python** devolve `{detail}`. Casos tratados: validação (`422`, com mensagem legível),
+- **Python** (handlers `@app.errorhandler`) devolve `{detail}`. Casos tratados: validação (`422`, com mensagem legível),
   filtros sem resultado (`404`), simulado maior que o disponível (`400`), erros repassados da
   API Java com o mesmo status, e **API Java fora do ar** (`503`, em vez de quebrar).
 - **Front-end** mostra essas mensagens em alertas e avisos. Se uma API estiver desligada, a
@@ -266,7 +267,7 @@ a aplicação.
 # API Java — 35 testes (JUnit 5 + Mockito + MockMvc, banco H2 em memória)
 cd backend-java && ./mvnw test
 
-# API Python — 22 testes (pytest; a API Java é simulada com httpx.MockTransport)
+# API Python — 27 testes (pytest + test_client do Flask; a API Java é simulada com httpx.MockTransport)
 cd backend-python && pytest -q
 ```
 

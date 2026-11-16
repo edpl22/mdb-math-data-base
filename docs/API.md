@@ -2,10 +2,10 @@
 
 Documentação interativa (sempre a fonte mais atualizada):
 - Java: `http://localhost:8080/swagger-ui.html`
-- Python: `http://localhost:8000/docs`
+- Python (Flask): não há Swagger; as rotas estão listadas abaixo e em `backend-python/app/main.py`
 
 Convenções: erros do Java seguem `{ timestamp, status, error, message, details[] }`; erros do
-Python (FastAPI) seguem `{ detail }`. Datas em ISO-8601.
+Python (Flask) seguem `{ detail }`. Datas em ISO-8601.
 
 ## API Java (`/api`) — porta 8080
 

@@ -7,7 +7,7 @@ frontend-web (HTML/CSS/JS puro, servido por nginx no docker-compose)
       |
       +---- backend-java (Spring Boot)  /api/...   -> PostgreSQL (fonte da verdade)
       |
-      +---- backend-python (FastAPI)    /tools/...  -> consome /api/... do backend-java via HTTP (httpx)
+      +---- backend-python (Flask)      /tools/...  -> consome /api/... do backend-java via HTTP (httpx)
 
 mobile/ (Android nativo em Java) -> consome backend-java /api/... diretamente
   (funcionalidades de CSV/sorteio/simulado ficam no backend-python; o app mobile
@@ -52,7 +52,7 @@ mobile/ (Android nativo em Java) -> consome backend-java /api/... diretamente
 - [x] Fase 2 — CRUD Java: Area, Tag, Problem + testes
 - [x] Fase 3 — autenticação JWT + usuários + permissões (ADMIN/USER)
 - [x] Fase 4 — dificuldade, status (favorito/quero fazer/já fiz), filtros de busca
-- [x] Fase 5 — FastAPI: cliente Java, CSV import/export, random, mock-exam + testes
+- [x] Fase 5 — API Python (inicialmente FastAPI, migrada para Flask): cliente Java, CSV import/export, random, mock-exam + testes
 - [x] Fase 6 — frontend web completo integrado às APIs reais
 - [x] Fase 7 — mobile Android (código-fonte completo; build não validado localmente — sem Android SDK)
 - [x] Fase 8 — Docker Compose, .env.example, documentação final (README, ARCHITECTURE, API, DATABASE, SETUP)

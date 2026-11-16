@@ -52,7 +52,7 @@ function renderErrorAlert(el, message) {
 function apiBadgeHtml(api, extra = '') {
     const label = api === 'python' ? 'API Python · :8000' : 'API Java · :8080';
     const title = api === 'python'
-        ? 'Funcionalidade atendida pela API Python (FastAPI)'
+        ? 'Funcionalidade atendida pela API Python (Flask)'
         : 'Funcionalidade atendida pela API Java (Spring Boot)';
     return `<span class="api-badge api-badge-${api}" title="${title}">${label}${extra ? ' · ' + escapeHtml(extra) : ''}</span>`;
 }

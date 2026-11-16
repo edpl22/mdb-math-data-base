@@ -1,6 +1,6 @@
 // Cliente HTTP fino para as duas APIs:
 //   - API Java   (Spring Boot, porta 8080) → JavaApi   → rotas /api/...
-//   - API Python (FastAPI,     porta 8000) → PythonApi → rotas /tools/...
+//   - API Python (Flask,       porta 8000) → PythonApi → rotas /tools/...
 // Centraliza tratamento de erros, injeção do token JWT e o registro de cada chamada
 // no "Inspetor de integração" (ver js/integration.js), que mostra qual API foi usada.
 
@@ -189,7 +189,7 @@ const JavaApi = {
     myProblems: () => request(CONFIG.JAVA_API_BASE, '/api/users/me/problems', { auth: true }),
 };
 
-// ---------- API Python (FastAPI) — ferramentas: sorteio, simulado, estatísticas, CSV ----------
+// ---------- API Python (Flask) — ferramentas: sorteio, simulado, estatísticas, CSV ----------
 
 const PythonApi = {
     health: () => request(CONFIG.PYTHON_API_BASE, '/health'),

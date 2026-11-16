@@ -35,7 +35,7 @@ migrations Flyway automaticamente no boot) → backend Python → frontend (ngin
 Acesse:
 - Frontend: http://localhost:8081
 - Swagger Java: http://localhost:8080/swagger-ui.html
-- Docs Python: http://localhost:8000/docs
+- API Python: http://localhost:8000/health
 
 Pare tudo com `docker compose down` (adicione `-v` para também apagar o volume do Postgres e
 recomeçar do zero).
@@ -65,7 +65,7 @@ cd backend-python
 python -m venv .venv
 # Windows: .venv\Scripts\activate  |  Linux/Mac: source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+flask --app app.main run --debug --port 8000
 ```
 
 Variável relevante: `MDB_JAVA_API_BASE_URL` (padrão `http://localhost:8080`).
