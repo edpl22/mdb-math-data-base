@@ -1,11 +1,11 @@
 # MDB — Math Data Base
 
-Plataforma web para **catalogar, pesquisar e praticar problemas de matemática**: busca com
+Plataforma web para entusiastas de matemática para estudar ou treinar uma área específica: busca com
 filtros combináveis, avaliação comunitária de dificuldade, favoritos, sorteio de questões,
 gerador de simulados imprimíveis (com gabarito) e importação/exportação em CSV.
 
-Projeto Final da disciplina **Laboratório de Programação II** — integra **duas APIs REST
-independentes** (Java/Spring Boot e Python/Flask) consumidas por **um front-end web**.
+Projeto da disciplina **Laboratório de Programação II** — integra **duas APIs REST**
+(Java/Spring Boot e Python/Flask) consumidas por **um front-end web**.
 
 ## Integrantes
 
@@ -30,7 +30,6 @@ independentes** (Java/Spring Boot e Python/Flask) consumidas por **um front-end 
 - [Credenciais de demonstração](#credenciais-de-demonstração)
 
 Explicação do código, passo a passo (back-end e front-end): [docs/PASSO_A_PASSO.md](docs/PASSO_A_PASSO.md).
-Roteiro sugerido para o vídeo de apresentação: [docs/ROTEIRO_VIDEO.md](docs/ROTEIRO_VIDEO.md).
 
 ## Visão geral
 
@@ -49,15 +48,12 @@ Roteiro sugerido para o vídeo de apresentação: [docs/ROTEIRO_VIDEO.md](docs/R
         PostgreSQL (ou H2 local)             nunca acessa o banco diretamente)
 ```
 
-- **API Java** é o núcleo: dona dos dados e das regras de negócio (cadastro, login, CRUD,
-  avaliações e listas do usuário).
+- **API Java** é o núcleo (cadastro, login, CRUD, avaliações e listas do usuário).
 - **API Python** oferece as ferramentas: sorteio, geração de simulados, estatísticas do
-  catálogo e CSV. Ela consome a API Java via HTTP, então as duas rodam e evoluem de forma
-  independente, cada uma na sua porta.
-- **Front-end** consome as duas APIs. Cada funcionalidade exibe um **selo** indicando qual API a
-  atende (laranja = Java, roxo = Python), e o rodapé mostra se cada API está online.
-- **Inspetor de integração**: no rodapé de qualquer página (ou com `Ctrl+I`) abre um painel que
-  lista em tempo real **cada requisição** feita pelo front-end, com API, método, rota, status e
+  catálogo e CSV. Ela consome a API Java via HTTP, então as duas rodam de forma independente, cada uma na sua porta.
+- **Front-end** consome as duas APIs.
+- **Inspetor de integração**:`Ctrl+I` abre um painel que lista em tempo real
+  **cada requisição** feita pelo front-end, com API, método, rota, status e
   tempo. As mesmas chamadas também aparecem no console (F12) e na aba Network do navegador.
 
 Fora do escopo, por decisão de projeto: fórum, chat, correção automática e ranking.
@@ -104,8 +100,8 @@ Abra **três terminais** na pasta do projeto, um para cada parte, nesta ordem:
 
 ```bash
 cd backend-java
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local        # Linux/macOS/Git Bash
-mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=local"     # Windows (PowerShell/CMD)
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local        # No Linux/macOS/Git Bash
+mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=local"     # No Windows (PowerShell/CMD)
 ```
 
 O perfil `local` usa um banco **H2 em arquivo** (`backend-java/data/`). Na primeira execução, as
