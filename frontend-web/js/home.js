@@ -3,7 +3,6 @@
 /** Estatísticas agregadas pela API Python (GET /tools/stats). */
 async function loadStats() {
     const el = document.getElementById('catalog-stats');
-    document.getElementById('stats-badge').innerHTML = apiBadgeHtml('python', 'GET /tools/stats');
     try {
         const s = await PythonApi.stats();
         const maxArea = Math.max(1, ...s.byArea.map((a) => a.count));

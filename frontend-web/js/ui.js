@@ -48,20 +48,14 @@ function renderErrorAlert(el, message) {
     el.innerHTML = `<div class="alert alert-error" role="alert">${escapeHtml(message)}</div>`;
 }
 
-/** Selo que identifica visualmente qual backend atende uma funcionalidade. */
+/** Etiquetas de backend desativadas na interface. Mantida para compatibilidade com as páginas. */
 function apiBadgeHtml(api, extra = '') {
-    const label = api === 'python' ? 'API Python · :8000' : 'API Java · :8080';
-    const title = api === 'python'
-        ? 'Funcionalidade atendida pela API Python (Flask)'
-        : 'Funcionalidade atendida pela API Java (Spring Boot)';
-    return `<span class="api-badge api-badge-${api}" title="${title}">${label}${extra ? ' · ' + escapeHtml(extra) : ''}</span>`;
+    return '';
 }
 
-/** Preenche todo elemento <span data-badge="java|python"> com o selo da API correspondente. */
+/** Remove marcadores de API inseridos diretamente nos arquivos HTML. */
 function fillBadges(root = document) {
-    root.querySelectorAll('[data-badge]').forEach((el) => {
-        el.innerHTML = apiBadgeHtml(el.dataset.badge, el.dataset.badgeExtra || '');
-    });
+    root.querySelectorAll('[data-badge]').forEach((el) => el.remove());
 }
 
 /** Botão com estado de carregamento: desabilita e troca o texto enquanto a promise roda. */

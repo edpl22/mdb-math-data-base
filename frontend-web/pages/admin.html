@@ -38,7 +38,7 @@
             <!-- Problems -->
             <section class="admin-panel" id="panel-problems">
                 <div class="admin-panel-header">
-                    <span data-badge="java" data-badge-extra="CRUD /api/problems"></span>
+
                     <p class="mb-0 text-tertiary label-mono" id="problems-count"></p>
                     <button class="btn" id="new-problem-btn">+ Novo problema</button>
                 </div>
@@ -130,7 +130,7 @@
             <!-- CSV Import -->
             <section class="admin-panel" id="panel-csv-import">
                 <div class="form-panel wide">
-                    <div class="flex-between"><h2 class="mb-0">Importar problemas de um CSV</h2><span data-badge="python" data-badge-extra="POST /tools/csv/import"></span></div>
+                    <div class="flex-between"><h2 class="mb-0">Importar problemas de um CSV</h2></div>
                     <p class="hint-text">Cabeçalho esperado: <code>id,titulo,enunciado,area,dificuldade,dica,solucao,fonte</code>
                         ("id" é ignorado; a "area" precisa existir). Linhas inválidas são reportadas sem
                         interromper as válidas. Exemplo pronto: <code>database/sample_import.csv</code>.</p>
@@ -148,7 +148,7 @@
             <!--- CSV Export -->
             <section class="admin-panel" id="panel-csv-export">
                 <div class="form-panel wide">
-                    <div class="flex-between"><h2 class="mb-0">Exportar catálogo para CSV</h2><span data-badge="python" data-badge-extra="GET /tools/csv/export"></span></div>
+                    <div class="flex-between"><h2 class="mb-0">Exportar catálogo para CSV</h2></div>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="field-label" for="export-area">Área (opcional)</label>

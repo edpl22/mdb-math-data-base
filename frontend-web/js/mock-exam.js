@@ -120,7 +120,7 @@ function renderExam(problems, title) {
         </article>`;
 
     document.getElementById('exam-summary').textContent =
-        `${plural(problems.length, 'questão sorteada', 'questões sorteadas')} pela API Python, sem repetição.`;
+        `${plural(problems.length, 'questão sorteada', 'questões sorteadas')}, sem repetição.`;
     typesetMath(resultsEl);
 }
 

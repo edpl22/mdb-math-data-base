@@ -1143,3 +1143,12 @@ body.inspector-open { padding-right: min(440px, 100vw); }
     .kpi { border-right: none; border-bottom: 1px solid var(--border-default); }
     .footer-inner { flex-direction: column; align-items: flex-start; }
 }
+
+/* Acrescente este trecho ao FINAL de frontend-web/css/style.css.
+   Oculta etiquetas de identificação de API sem afetar chamadas HTTP. */
+[data-badge],
+.api-badge,
+.api-label,
+.api-tag {
+    display: none !important;
+}

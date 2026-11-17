@@ -119,17 +119,7 @@ function renderFooter() {
     mount.innerHTML = `
         <div class="container footer-inner">
             <span>MDB — Math Data Base · Projeto Final · Laboratório de Programação II</span>
-            <div class="footer-status">
-                <span class="status-pill" id="status-java" title="API Java (Spring Boot) — ${escapeHtml(CONFIG.JAVA_API_BASE)}">
-                    <span class="dot"></span>API Java :8080
-                </span>
-                <span class="status-pill" id="status-python" title="API Python (Flask) — ${escapeHtml(CONFIG.PYTHON_API_BASE)}">
-                    <span class="dot"></span>API Python :8000
-                </span>
-                <button type="button" class="footer-inspector-btn" data-open-inspector>Inspetor de integração</button>
-            </div>
         </div>`;
-    checkApiStatus();
 }
 
 /** Consulta o health check de cada API e pinta o indicador do rodapé. */

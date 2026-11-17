@@ -39,7 +39,6 @@ function renderProblem(problem) {
                 <a href="/pages/catalog.html">Problemas</a> /
                 <a href="/pages/catalog.html?area=${encodeURIComponent(problem.area)}">${escapeHtml(problem.area || '')}</a>
             </div>
-            <span>${apiBadgeHtml('java', `GET /api/problems/${problem.id}`)}</span>
         </div>
 
         <div class="problem-header">
@@ -80,7 +79,7 @@ function renderProblem(problem) {
                 ? ['FAVORITE', 'WANT_TO_DO', 'DONE'].map((s) => statusButton(s, statuses)).join('')
                 : `<a class="btn btn-secondary" href="/pages/login.html?next=${encodeURIComponent(location.pathname + location.search)}">Entre para favoritar ou acompanhar seu progresso</a>`}
             <span class="actions-spacer"></span>
-            <button class="btn btn-secondary" id="random-same-area" type="button" title="Sorteia outro problema da mesma área (API Python)">Sortear outro de ${escapeHtml(problem.area)}</button>
+            <button class="btn btn-secondary" id="random-same-area" type="button" title="Sorteia outro problema da mesma área">Sortear outro de ${escapeHtml(problem.area)}</button>
         </div>
 
         <div class="container-read">
