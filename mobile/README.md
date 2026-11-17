@@ -1,6 +1,6 @@
 # MDB Mobile (Android nativo, Java)
 
-Cliente Android **simplificado** do MDB — Math Data Base. Consome diretamente a API núcleo
+Cliente Android **simplificado** do MDB - Math Data Base. Consome diretamente a API núcleo
 Java/Spring Boot (`/api/...`). Não reproduz o painel administrativo nem CSV/simulados/sorteio
 (esses seguem restritos ao frontend web, conforme o enunciado do projeto).
 
@@ -16,10 +16,10 @@ Java/Spring Boot (`/api/...`). Não reproduz o painel administrativo nem CSV/sim
 
 ## Arquitetura
 
-- `api/` — `ApiService` (Retrofit), `ApiClient` (instância única + interceptor de token JWT),
+- `api/` - `ApiService` (Retrofit), `ApiClient` (instância única + interceptor de token JWT),
   `TokenManager` (sessão em `SharedPreferences`).
-- `model/` — DTOs espelhando o JSON retornado pela API Java.
-- `ui/` — Activities e o `ProblemAdapter` (RecyclerView).
+- `model/` - DTOs espelhando o JSON retornado pela API Java.
+- `ui/` - Activities e o `ProblemAdapter` (RecyclerView).
 
 O app usa **um único backend**: a API Java. O microsserviço Python (CSV, sorteio, simulados)
 não é consumido pelo app mobile neste MVP, para manter o cliente simplificado conforme pedido.
@@ -56,6 +56,6 @@ Este projeto foi gerado em um ambiente **sem Android SDK/Android Studio instalad
 2. Deixe o Android Studio sincronizar o Gradle (ele resolve o wrapper e as dependências).
 3. Suba o backend Java (`docker compose up backend-java postgres` a partir da raiz do repositório,
    ou `./mvnw spring-boot:run` dentro de `backend-java/`).
-4. Rode o app em um emulador Android (API 26+) — a URL `http://10.0.2.2:8080` já aponta para o
+4. Rode o app em um emulador Android (API 26+) - a URL `http://10.0.2.2:8080` já aponta para o
    backend local automaticamente.
 5. Use as credenciais de desenvolvimento: `admin@mdb.dev` / `admin123` ou `demo@mdb.dev` / `demo123`.

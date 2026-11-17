@@ -117,26 +117,6 @@ function renderFooter() {
         </div>`;
 }
 
-async function checkApiStatus() {
-    const check = async (id, fn) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.classList.remove('up', 'down');
-        try {
-            await fn();
-            el.classList.add('up');
-            el.dataset.state = 'online';
-        } catch {
-            el.classList.add('down');
-            el.dataset.state = 'offline';
-        }
-    };
-    await Promise.all([
-        check('status-java', JavaApi.health),
-        check('status-python', PythonApi.health),
-    ]);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     renderHeader();
     renderFooter();

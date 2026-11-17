@@ -179,8 +179,6 @@ document.getElementById('toggle-answers').addEventListener('change', (evt) => {
         if (evt.target.checked) typesetMath(answers);
     }
 });
-
-fillBadges();
 loadAreaOptions();
 renderSelectors();
 refreshComposition();

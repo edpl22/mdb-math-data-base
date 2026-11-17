@@ -38,31 +38,6 @@ class ApiError extends Error {
     }
 }
 
-// log das chamadas, usado pelo inspetor de integração
-const ApiLog = {
-    KEY: 'mdb_api_log',
-    MAX: 80,
-
-    read() {
-        try { return JSON.parse(sessionStorage.getItem(this.KEY) || '[]'); } catch { return []; }
-    },
-    write(entries) {
-        try { sessionStorage.setItem(this.KEY, JSON.stringify(entries.slice(-this.MAX))); } catch { /* ignora */ }
-    },
-    add(entry) {
-        const entries = this.read();
-        entries.push(entry);
-        this.write(entries);
-        window.dispatchEvent(new CustomEvent('mdb:api-call', { detail: entry }));
-
-        console.info(`[${entry.api}] ${entry.method} ${entry.path} ${entry.status || 'falha'} (${entry.ms} ms)`);
-    },
-    clear() {
-        this.write([]);
-        window.dispatchEvent(new CustomEvent('mdb:api-call', { detail: null }));
-    },
-};
-
 function apiNameFor(baseUrl) {
     return baseUrl === CONFIG.PYTHON_API_BASE ? 'python' : 'java';
 }
@@ -87,13 +62,6 @@ async function request(baseUrl, path, { method = 'GET', body, auth = false, isFo
     }
 
     const api = apiNameFor(baseUrl);
-    const started = performance.now();
-    const logEntry = {
-        api, method, path,
-        status: 0, ok: false, ms: 0,
-        at: new Date().toISOString(),
-        page: window.location.pathname,
-    };
 
     let response;
     try {
@@ -103,16 +71,9 @@ async function request(baseUrl, path, { method = 'GET', body, auth = false, isFo
             body: isForm ? body : (body !== undefined ? JSON.stringify(body) : undefined),
         });
     } catch (networkError) {
-        logEntry.ms = Math.round(performance.now() - started);
-        ApiLog.add(logEntry);
         const port = api === 'java' ? '8080' : '8000';
         throw new ApiError(0, `Não foi possível conectar à API ${api === 'java' ? 'Java' : 'Python'} (porta ${port}). Verifique se ela está rodando.`);
     }
-
-    logEntry.status = response.status;
-    logEntry.ok = response.ok;
-    logEntry.ms = Math.round(performance.now() - started);
-    ApiLog.add(logEntry);
 
     // token expirado
     if (response.status === 401 && auth && Auth.getToken()) {
@@ -141,8 +102,6 @@ async function request(baseUrl, path, { method = 'GET', body, auth = false, isFo
 
 // API Java (porta 8080)
 const JavaApi = {
-    health: () => request(CONFIG.JAVA_API_BASE, '/api/health'),
-
     register: (name, email, password) =>
         request(CONFIG.JAVA_API_BASE, '/api/auth/register', { method: 'POST', body: { name, email, password } }),
     login: (email, password) =>
@@ -176,8 +135,6 @@ const JavaApi = {
 
 // API Python (porta 8000)
 const PythonApi = {
-    health: () => request(CONFIG.PYTHON_API_BASE, '/health'),
-
     randomProblem: (params = {}) =>
         request(CONFIG.PYTHON_API_BASE, `/tools/random-problem${buildQuery(params)}`),
     mockExam: (payload) => request(CONFIG.PYTHON_API_BASE, '/tools/mock-exam', { method: 'POST', body: payload }),

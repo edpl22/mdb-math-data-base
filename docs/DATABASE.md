@@ -1,9 +1,9 @@
-# Banco de dados — MDB
+# Banco de dados - MDB
 
 PostgreSQL 16, gerenciado por **Flyway** (`backend-java/src/main/resources/db/migration`):
 
-- `V1__init_schema.sql` — schema completo.
-- `V2__seed_data.sql` — dados de desenvolvimento (áreas, tags, 2 usuários, 20 problemas).
+- `V1__init_schema.sql` - schema completo.
+- `V2__seed_data.sql` - dados de desenvolvimento (áreas, tags, 2 usuários, 20 problemas).
 
 ## Diagrama conceitual
 
@@ -78,7 +78,7 @@ consulta como `AVG(difficulty_ratings.difficulty)` para o problema, com *fallbac
 `initial_difficulty` quando ainda não há avaliações.
 
 ### `problem_tags` (N:N problems↔tags)
-`problem_id`, `tag_id` — chave primária composta, `ON DELETE CASCADE`.
+`problem_id`, `tag_id` - chave primária composta, `ON DELETE CASCADE`.
 
 ### `difficulty_ratings`
 | Coluna | Tipo | Notas |
@@ -104,7 +104,7 @@ consulta como `AVG(difficulty_ratings.difficulty)` para o problema, com *fallbac
 ## Por que não usar o CSV como banco?
 
 O CSV é usado apenas como **formato de intercâmbio** (import/export), nunca como fonte de
-verdade — todos os dados residem no PostgreSQL. Isso está implementado no `backend-python`: a
+verdade - todos os dados residem no PostgreSQL. Isso está implementado no `backend-python`: a
 importação lê o CSV, valida linha a linha e delega a persistência ao `POST /api/problems` do
 backend Java (que grava no Postgres); a exportação lê do Postgres (via API Java) e apenas serializa
 para CSV sob demanda.

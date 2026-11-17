@@ -108,8 +108,6 @@ document.getElementById('random-btn').addEventListener('click', async (evt) => {
         showToast(err.message, 'error');
     }
 });
-
-fillBadges();
 loadStats();
 loadAreaIndex();
 loadRecentProblems();

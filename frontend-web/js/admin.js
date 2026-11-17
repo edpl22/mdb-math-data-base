@@ -3,8 +3,6 @@ if (!Auth.isAdmin()) {
     throw new Error('Acesso restrito a administradores.');
 }
 
-fillBadges();
-
 // navegação lateral
 document.querySelectorAll('#admin-nav button').forEach((btn) => {
     btn.addEventListener('click', () => {

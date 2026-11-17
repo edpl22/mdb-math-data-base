@@ -33,7 +33,6 @@
         document.getElementById('profile-title').textContent = user.name;
         document.getElementById('profile-sub').textContent =
             `${user.email}${user.role === 'ADMIN' ? ' · administrador' : ''}`;
-        fillBadges();
 
         try {
             const data = await JavaApi.myProblems();

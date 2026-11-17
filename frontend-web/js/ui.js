@@ -1,6 +1,3 @@
-// Helpers de UI compartilhados: toasts, loading, estado vazio, escape de HTML,
-// componentes de dificuldade/tags, selo de API e a linha de problema (ProblemRow).
-
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -48,17 +45,6 @@ function renderErrorAlert(el, message) {
     el.innerHTML = `<div class="alert alert-error" role="alert">${escapeHtml(message)}</div>`;
 }
 
-/** Etiquetas de backend desativadas na interface. Mantida para compatibilidade com as páginas. */
-function apiBadgeHtml(api, extra = '') {
-    return '';
-}
-
-/** Remove marcadores de API inseridos diretamente nos arquivos HTML. */
-function fillBadges(root = document) {
-    root.querySelectorAll('[data-badge]').forEach((el) => el.remove());
-}
-
-/** Botão com estado de carregamento: desabilita e troca o texto enquanto a promise roda. */
 async function withButtonLoading(btn, loadingLabel, fn) {
     const original = btn.innerHTML;
     btn.disabled = true;
@@ -81,7 +67,6 @@ function formatDecimal(value, digits = 1) {
     return Number(value).toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-/** Barra técnica de 5 segmentos representando a dificuldade arredondada. */
 function difficultyBarsHtml(value) {
     const rounded = value === null || value === undefined ? 0 : Math.round(value);
     let bars = '';
@@ -91,7 +76,6 @@ function difficultyBarsHtml(value) {
     return `<span class="difficulty-bars" aria-label="Dificuldade ${rounded} de 5">${bars}</span>`;
 }
 
-/** Versão compacta usada em linhas de listagem: "3,8/5" + N avaliações. */
 function difficultyCompactHtml(value, count, initial) {
     if (value === null || value === undefined) {
         const fallback = initial ? `${initial}<span class="of-five">/5</span>` : '—';
@@ -102,7 +86,6 @@ function difficultyCompactHtml(value, count, initial) {
             <div class="difficulty-meta">${plural(count, 'avaliação', 'avaliações')}</div>`;
 }
 
-/** Versão completa usada na página do problema: valor + barra + label + contagem. */
 function difficultyFullHtml(value, count) {
     if (value === null || value === undefined) {
         return `<div class="difficulty-inline">
@@ -118,7 +101,6 @@ function difficultyFullHtml(value, count) {
             <div class="difficulty-meta">${difficultyLabel(value)} · ${plural(count, 'avaliação', 'avaliações')}</div>`;
 }
 
-/** DifficultySelector: cinco botões [1][2][3][4][5]; onSelect(value) por clique. */
 function renderDifficultySelector(containerId, selectedValue, onSelect) {
     const el = document.getElementById(containerId);
     el.setAttribute('role', 'group');
@@ -140,7 +122,6 @@ function typesetMath(scopeEl, attempt = 0) {
     }
 }
 
-/** Linha densa de problema usada em catálogo, home, perfil e simulados. */
 function problemRowHtml(problem) {
     const tags = (problem.tags || []).slice(0, 3)
         .map((t) => `<span class="tag">${escapeHtml(t)}</span>`)

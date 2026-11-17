@@ -8,7 +8,7 @@ Como ler este roteiro:
 - **Ação:** o que fazer na tela.
 - **Fala:** texto sugerido para a narração. Não precisa ler palavra por palavra, mas cubra os
   pontos.
-- **Aparece:** a requisição que deve surgir no Inspetor de integração ou na aba Network.
+- **Aparece:** a requisição que deve surgir na aba Network do navegador.
 
 | Parte | Tempo | Quem narra (sugestão) |
 |---|---|---|
@@ -93,19 +93,19 @@ python -m http.server 8081
 **Fala:**
 > "Por fim, o front-end é servido como arquivos estáticos na porta 8081."
 
-**Ação:** abra http://localhost:8081 e aponte para o rodapé.
+**Ação:** abra http://localhost:8000/health em uma aba e depois http://localhost:8081.
 
 **Fala:**
-> "No rodapé, os dois indicadores verdes mostram que o site conseguiu falar com as duas APIs.
-> Eles fazem um `GET /api/health` na API Java e um `GET /health` na API Python."
+> "O `GET /health` da API Python responde `javaApi: ok`, ou seja, ela já está conversando com a
+> API Java. Agora o site está no ar."
 
 ---
 
 ## 3. Funcionalidades (1:50–4:50)
 
 Nesta parte o foco é **usar** o site. As requisições aparecem em detalhe na parte 4, mas já
-vale mencionar, de passagem, qual API responde cada tela. O selo colorido ajuda: **laranja =
-Java, roxo = Python**.
+vale mencionar, de passagem, qual API responde cada tela (a tabela "Qual tela usa qual API" do
+README ajuda).
 
 ### 3.1 Home (20 s)
 
@@ -113,9 +113,8 @@ Java, roxo = Python**.
 
 **Fala:**
 > "Na home, o painel 'O catálogo em números' mostra o total de problemas, a distribuição por
-> área e por dificuldade e os tópicos mais frequentes. Repare no selo roxo: quem calcula esses
-> números é a **API Python**. Logo abaixo, a lista de áreas e os problemas recentes vêm da
-> **API Java**, selo laranja."
+> área e por dificuldade e os tópicos mais frequentes. Quem calcula esses números é a
+> **API Python**. Logo abaixo, a lista de áreas e os problemas recentes vêm da **API Java**."
 
 ### 3.2 Catálogo, busca e filtros (40 s)
 
@@ -198,12 +197,14 @@ clique em **Editar** em um problema e mude o título. Em **Importar CSV**, envie
 
 ## 4. Integração: o que chama a API Python e o que chama a API Java (4:50–6:50)
 
-Este é o item que o professor mais vai observar. Mostre as requisições **acontecendo**.
+Este é o item que o professor mais vai observar. Mostre as requisições **acontecendo** na aba
+Network do navegador.
 
-### 4.1 Inspetor de integração (60 s)
+### 4.1 Aba Network: uma ação de cada vez (60 s)
 
-**Ação:** clique em **Inspetor de integração** no rodapé (ou `Ctrl+I`) e em **Limpar**. Depois
-faça, uma por vez, as ações da tabela abaixo, apontando para a linha que surge no painel.
+**Ação:** abra **F12 → Network**, marque **Fetch/XHR** e clique no ícone de limpar. Faça as
+ações da tabela uma por vez, apontando para a requisição que aparece. No campo de filtro da aba,
+digite `8000` para ver só as chamadas da API Python e `8080` para ver só as da API Java.
 
 | Ação no site | API | Requisição que aparece | Status |
 |---|---|---|---|
@@ -218,25 +219,23 @@ faça, uma por vez, as ações da tabela abaixo, apontando para a linha que surg
 | **Gerar simulado** | Python | `POST /tools/mock-exam` | 200 |
 
 **Fala:**
-> "Este painel registra cada requisição que o front-end faz, com a API, o método HTTP, a rota,
-> o status e o tempo de resposta. Vou filtrar só **Python**: aparecem as estatísticas, o
-> sorteio, o simulado e o CSV. Agora só **Java**: login, busca, detalhe do problema, favoritos
-> e avaliações.
+> "Aqui na aba Network aparece cada requisição que o site faz. As que vão para a porta
+> **8000** são da API Python: estatísticas, sorteio, simulado e CSV. As que vão para a porta
+> **8080** são da API Java: login, busca, detalhe do problema, favoritos e avaliações.
 >
 > Repare nos **métodos HTTP**: usamos **GET** para consultar sem alterar nada, **POST** para
 > criar algo novo (a primeira avaliação devolve **201 Created**), **PUT** para alterar ou
 > marcar (mudar a nota, favoritar) e **DELETE** para remover (desfavoritar)."
 
-### 4.2 Aba Network do navegador (60 s)
+### 4.2 Abrindo uma requisição de cada API (60 s)
 
-**Ação:** abra **F12 → Network**, filtre por **Fetch/XHR** e clique em **Gerar simulado**
-novamente. Clique na requisição `mock-exam`.
+**Ação:** clique em **Gerar simulado** novamente e clique na requisição `mock-exam`.
 
 **Fala:**
-> "Na aba Network vemos a mesma coisa, direto do navegador. Esta é a requisição para
-> `localhost:8000/tools/mock-exam`, a API Python. Em **Headers**: método **POST** e
-> `Content-Type: application/json`. Em **Payload**, o corpo que o front-end enviou:
-> quantidade, área e faixa de dificuldade. Em **Response**, o JSON com a lista de problemas."
+> "Esta é a requisição para `localhost:8000/tools/mock-exam`, a API Python. Em **Headers**:
+> método **POST** e `Content-Type: application/json`. Em **Payload**, o corpo que o front-end
+> enviou: quantidade, área e faixa de dificuldade. Em **Response**, o JSON com a lista de
+> problemas."
 
 **Ação:** clique em **★ Favorito** e selecione a requisição `status`.
 
@@ -329,7 +328,7 @@ def mock_exam():
     exam_request = MockExamRequest.model_validate(body)
     problems = build_mock_exam(java_client(), get_settings(), exam_request)
     ...
-    return jsonify(response.model_dump())
+    return jsonify(MockExamResponse(problems=problems).model_dump())
 ```
 
 **Fala:**
@@ -370,8 +369,8 @@ const JavaApi = {
 > "No front-end, toda chamada passa pelo arquivo `api.js`. O objeto **`JavaApi`** aponta para a
 > porta 8080 e o **`PythonApi`** para a 8000, então dá para ver no código qual API atende cada
 > função. Todas usam a função **`request()`**, que faz o `fetch`, coloca o
-> `Content-Type: application/json`, adiciona o token JWT quando `auth: true`, registra a chamada
-> no inspetor e transforma erros em mensagens."
+> `Content-Type: application/json`, adiciona o token JWT quando `auth: true` e transforma erros
+> em mensagens."
 
 **Ação:** abra `frontend-web/js/mock-exam.js` na linha com `PythonApi.mockExam(payload)`.
 
@@ -393,8 +392,8 @@ const JavaApi = {
 > **Mendes:** "Desenvolvi a API Python em Flask: sorteio, gerador de simulados, estatísticas e
 > a importação e exportação de CSV."
 >
-> **Davi Braga:** "Desenvolvi o front-end: as páginas, o consumo das duas APIs, o inspetor de
-> integração e o layout responsivo."
+> **Davi Braga:** "Desenvolvi o front-end: as páginas, o consumo das duas APIs e o layout
+> responsivo."
 
 **Encerramento:**
 > "O código está no GitHub e o README tem o passo a passo para rodar. Obrigado!"

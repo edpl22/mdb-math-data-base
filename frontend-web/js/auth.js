@@ -17,8 +17,6 @@ function formErrorMessage(err) {
     return err.message;
 }
 
-fillBadges();
-
 if (Auth.isLoggedIn()) {
     window.location.replace(safeNextUrl());
 }

@@ -12,10 +12,10 @@ backend-java/src/main/resources/db/migration/
 
 Esta pasta contém apenas material de apoio:
 
-- [`schema_reference.sql`](schema_reference.sql) — cópia somente-leitura do schema para consulta
+- [`schema_reference.sql`](schema_reference.sql) - cópia somente-leitura do schema para consulta
   rápida sem precisar abrir o backend Java (**não é executada por nenhuma ferramenta**; edite
   sempre as migrations originais).
-- [`sample_import.csv`](sample_import.csv) — arquivo de exemplo para testar a importação de CSV
+- [`sample_import.csv`](sample_import.csv) - arquivo de exemplo para testar a importação de CSV
   pelo painel administrativo (`Admin → Importar/Exportar CSV`), usando áreas já semeadas pelo
   `V2__seed_data.sql`.
 

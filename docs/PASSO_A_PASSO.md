@@ -62,8 +62,7 @@ mockExam: (payload) => request(CONFIG.PYTHON_API_BASE, '/tools/mock-exam', { met
 ```
 
 `request()` monta o header `Content-Type: application/json`, transforma o objeto em texto com
-`JSON.stringify`, envia, mede o tempo, registra a chamada no Inspetor de integração e, se vier
-erro, lança um `ApiError` com a mensagem do servidor.
+`JSON.stringify`, envia e, se vier erro, lança um `ApiError` com a mensagem do servidor.
 
 **Passo 3: API Python (`backend-python/app/main.py`)**
 O Flask encontra a função decorada com `@app.post("/tools/mock-exam")`:
@@ -75,7 +74,7 @@ def mock_exam():
     exam_request = MockExamRequest.model_validate(body)  # valida (quantidade 1..100 etc.)
     problems = build_mock_exam(java_client(), get_settings(), exam_request)
     ...
-    return jsonify(response.model_dump())                # devolve JSON
+    return jsonify(MockExamResponse(problems=problems).model_dump())  # devolve JSON
 ```
 
 **Passo 4: API Python → API Java (`app/services/` e `app/clients/java_client.py`)**
@@ -93,8 +92,8 @@ banco pelo repository e devolve uma página de resultados em JSON.
 A API Python devolve `{ "problems": [...] }`. O `mock-exam.js` recebe a lista e a função
 `renderExam()` monta a prova na tela. O MathJax renderiza as fórmulas em LaTeX (`$x^2$`).
 
-> Para ver isso acontecendo, abra o **Inspetor de integração** no rodapé (`Ctrl+I`) ou a aba
-> **Network** do navegador (F12). Aparece o `POST :8000/tools/mock-exam`. As chamadas que a
+> Para ver isso acontecendo, abra a aba **Network** do navegador (F12). Aparece o
+> `POST :8000/tools/mock-exam`. As chamadas que a
 > Python faz para a Java são de servidor para servidor, então aparecem no terminal da API Java,
 > não no navegador.
 
@@ -411,7 +410,6 @@ frontend-web/
     ├── api.js            ← TODA comunicação com as APIs (fetch)
     ├── ui.js             ← funções de interface reutilizáveis
     ├── nav.js            ← monta cabeçalho e rodapé
-    ├── integration.js    ← Inspetor de integração
     └── home.js, catalog.js, problem.js, mock-exam.js, profile.js, auth.js, admin.js
                           ← um script por página
 ```
@@ -427,9 +425,8 @@ Toda página termina assim (exemplo de `pages/catalog.html`):
 <script src="/js/api.js"></script>          <!-- 2. funções que chamam as APIs -->
 <script src="/js/ui.js"></script>           <!-- 3. helpers visuais -->
 <script src="/js/nav.js"></script>          <!-- 4. cabeçalho e rodapé -->
-<script src="/js/integration.js"></script>  <!-- 5. inspetor de requisições -->
 <script>window.MDB_ACTIVE_PAGE = 'catalog';</script>
-<script src="/js/catalog.js"></script>      <!-- 6. lógica desta página -->
+<script src="/js/catalog.js"></script>      <!-- 5. lógica desta página -->
 ```
 
 A ordem importa: `catalog.js` usa funções definidas em `api.js` e `ui.js`.
@@ -451,11 +448,10 @@ Se as APIs mudarem de porta, só este arquivo muda.
 
 1. Monta os headers (`Content-Type: application/json` e, se a rota exige login,
    `Authorization: Bearer <token>`).
-2. Faz o `fetch` e mede o tempo.
-3. Registra a chamada no `ApiLog`, que alimenta o Inspetor e o console.
-4. Se a API estiver desligada, lança o erro "Não foi possível conectar à API Java/Python (porta…)".
-5. Se a resposta for erro (4xx/5xx), lê `message` (Java) ou `detail` (Python) e lança `ApiError`.
-6. Se der certo, devolve o JSON já convertido em objeto.
+2. Faz o `fetch`.
+3. Se a API estiver desligada, lança o erro "Não foi possível conectar à API Java/Python (porta…)".
+4. Se a resposta for erro (4xx/5xx), lê `message` (Java) ou `detail` (Python) e lança `ApiError`.
+5. Se der certo, devolve o JSON já convertido em objeto.
 
 **Os objetos `JavaApi` e `PythonApi`** dão um nome legível a cada endpoint. Basta olhar o objeto
 para saber qual API atende cada função:
@@ -510,13 +506,8 @@ async function loadRecentProblems() {
 
 - **`ui.js`**: `escapeHtml()` (evita injeção de HTML com o texto vindo da API),
   `showToast()` (avisos), `renderLoading/Empty/ErrorAlert()`, `problemRowHtml()` (linha de
-  problema usada em várias telas), o seletor de dificuldade 1–5 e `apiBadgeHtml()` (selo
-  "API Java · :8080" / "API Python · :8000").
+  problema usada em várias telas) e o seletor de dificuldade de 1 a 5.
 - **`nav.js`**: desenha o cabeçalho (com menu mobile e o link "Sair" quando logado) e o rodapé.
-  No rodapé, chama `JavaApi.health()` e `PythonApi.health()` para pintar os indicadores de
-  online/offline.
-- **`integration.js`**: o painel **Inspetor de integração**. Ele escuta o evento `mdb:api-call`,
-  disparado por `request()` a cada chamada, e lista API, método, rota, status e tempo.
 - **`style.css`**: variáveis de cor no `:root`, componentes, layout responsivo
   (`@media (max-width: 960px)`) e estilo de impressão do simulado (`@media print`).
 

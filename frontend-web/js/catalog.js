@@ -241,7 +241,6 @@ document.getElementById('random-filtered-btn').addEventListener('click', async (
 });
 
 (async function init() {
-    fillBadges();
     readStateFromUrl();
     document.getElementById('f-text').value = state.text;
     renderDifficultyFilters();

@@ -1,4 +1,4 @@
-# Referência de API — MDB
+# Referência de API - MDB
 
 Documentação interativa (sempre a fonte mais atualizada):
 - Java: `http://localhost:8080/swagger-ui.html`
@@ -7,15 +7,15 @@ Documentação interativa (sempre a fonte mais atualizada):
 Convenções: erros do Java seguem `{ timestamp, status, error, message, details[] }`; erros do
 Python (Flask) seguem `{ detail }`. Datas em ISO-8601.
 
-## API Java (`/api`) — porta 8080
+## API Java (`/api`) - porta 8080
 
 ### Saúde
 
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| GET | `/api/health` | pública | `{status, service, framework, timestamp}` — usado pelo indicador do rodapé |
+| GET | `/api/health` | pública | `{status, service, framework, timestamp}` |
 
-### Autenticação (`/api/auth`) — públicas
+### Autenticação (`/api/auth`) - públicas
 
 | Método | Rota | Body | Descrição |
 |---|---|---|---|
@@ -60,11 +60,11 @@ inexistentes são criadas automaticamente.
 | POST | `/api/problems/{id}/difficulty` | autenticado | Cria a avaliação do usuário logado (`{difficulty: 1..5}`); `409` se já existe |
 | PUT | `/api/problems/{id}/difficulty` | autenticado | Atualiza a avaliação existente; `404` se ainda não existe |
 
-### Status (`/api/problems/{id}/status`) — favoritar / quero fazer / já fiz
+### Status (`/api/problems/{id}/status`) - favoritar / quero fazer / já fiz
 
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| PUT | `/api/problems/{id}/status` | autenticado | `{status: "FAVORITE"\|"WANT_TO_DO"\|"DONE"}` — idempotente |
+| PUT | `/api/problems/{id}/status` | autenticado | `{status: "FAVORITE"\|"WANT_TO_DO"\|"DONE"}` - idempotente |
 | DELETE | `/api/problems/{id}/status?status=FAVORITE` | autenticado | Remove aquele status específico |
 
 ### Áreas e tags
@@ -82,7 +82,7 @@ inexistentes são criadas automaticamente.
 | GET | `/api/users/me` | autenticado | Dados do usuário logado |
 | GET | `/api/users/me/problems` | autenticado | `{favorites[], wantToDo[], done[]}` |
 
-## API Python (`/tools`) — porta 8000
+## API Python (`/tools`) - porta 8000
 
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
@@ -106,9 +106,9 @@ id,titulo,enunciado,area,dificuldade,dica,solucao,fonte
 
 | Ação | Público | Autenticado | Admin |
 |---|:---:|:---:|:---:|
-| Consultar problemas/áreas/tags | ✅ | ✅ | ✅ |
-| Avaliar dificuldade / favoritar / status | ❌ | ✅ | ✅ |
-| Cadastrar/editar/excluir problema | ❌ | ❌ | ✅ |
-| Cadastrar área | ❌ | ❌ | ✅ |
-| Importar/exportar CSV | ❌ | ❌ | ✅ |
-| Sortear questão / gerar simulado | ✅ | ✅ | ✅ |
+| Consultar problemas/áreas/tags | Sim | Sim | Sim |
+| Avaliar dificuldade / favoritar / status | Não | Sim | Sim |
+| Cadastrar/editar/excluir problema | Não | Não | Sim |
+| Cadastrar área | Não | Não | Sim |
+| Importar/exportar CSV | Não | Não | Sim |
+| Sortear questão / gerar simulado | Sim | Sim | Sim |
