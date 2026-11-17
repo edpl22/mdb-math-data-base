@@ -6,14 +6,11 @@ from app.schemas.problem import ProblemSummary
 
 
 class MockExamRequest(BaseModel):
-    quantity: int = Field(gt=0, le=100, description="Quantidade de questões desejada (1 a 100)")
+    quantity: int = Field(gt=0, le=100)
     area: Optional[str] = None
     minDifficulty: int = Field(default=1, ge=1, le=5)
     maxDifficulty: int = Field(default=5, ge=1, le=5)
-    includeStatements: bool = Field(
-        default=False,
-        description="Se true, cada questão vem com enunciado, dica e solução (para montar a prova imprimível)",
-    )
+    includeStatements: bool = False
 
     @field_validator("maxDifficulty")
     @classmethod

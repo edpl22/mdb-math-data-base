@@ -11,11 +11,7 @@ import java.util.List;
 
 public interface ProblemRepository extends JpaRepository<Problem, Long> {
 
-    /**
-     * Busca combinada por texto livre (titulo/enunciado), area, tag e faixa de dificuldade.
-     * A dificuldade considerada e a media das avaliacoes da comunidade; quando o problema
-     * ainda nao possui avaliacoes, usa-se a dificuldade inicial cadastrada pelo autor.
-     */
+    // dificuldade = média das avaliações ou, sem avaliações, a dificuldade inicial
     @Query("""
             SELECT DISTINCT p FROM Problem p
             LEFT JOIN p.tags t
@@ -41,7 +37,6 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
             Pageable pageable
     );
 
-    /** Usado pelo sorteio de questao e pelo simulado (via API Python), sem paginacao. */
     @Query("""
             SELECT DISTINCT p FROM Problem p
             LEFT JOIN p.tags t

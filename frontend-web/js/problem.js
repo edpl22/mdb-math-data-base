@@ -1,6 +1,3 @@
-// Página do problema: detalhe, status (favorito/quero fazer/já fiz) e avaliação de
-// dificuldade → todos na API Java. "Sortear outro" → API Python.
-
 function getProblemId() {
     const params = new URLSearchParams(window.location.search);
     return params.get('id');
@@ -27,7 +24,7 @@ function renderProblem(problem) {
     const content = document.getElementById('page-content');
     const loggedIn = Auth.isLoggedIn();
     const statuses = problem.userStatuses || [];
-    document.title = `${problem.title} — MDB`;
+    document.title = `${problem.title} | MDB`;
 
     const tags = (problem.tags || [])
         .map((t) => `<a class="tag tag-link" href="/pages/catalog.html?tag=${encodeURIComponent(t)}">${escapeHtml(t)}</a>`)
@@ -138,7 +135,7 @@ function renderProblem(problem) {
     document.getElementById('random-same-area').addEventListener('click', async (evt) => {
         try {
             await withButtonLoading(evt.currentTarget, 'Sorteando…', async () => {
-                // Tenta algumas vezes para não cair no mesmo problema.
+                // evita sortear o mesmo problema
                 for (let i = 0; i < 4; i++) {
                     const next = await PythonApi.randomProblem({ area: problem.area });
                     if (next.id !== problem.id || i === 3) {
@@ -164,7 +161,6 @@ function renderProblem(problem) {
 
 async function reloadProblem(id) {
     const updated = await JavaApi.getProblem(id);
-    // Preserva o estado aberto/fechado de dica e solução após o re-render.
     const hintOpen = !document.getElementById('hint-content')?.classList.contains('hidden');
     const solutionOpen = !document.getElementById('solution-content')?.classList.contains('hidden');
     renderProblem(updated);

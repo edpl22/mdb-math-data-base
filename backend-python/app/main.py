@@ -1,17 +1,3 @@
-"""API Python do MDB, feita em Flask.
-
-Responsável pelas "ferramentas" da plataforma: sorteio de questão, gerador de simulados,
-estatísticas do catálogo e importação/exportação de CSV. Os dados dos problemas vêm da
-API Java (Spring Boot, porta 8080) via HTTP; este serviço nunca acessa o banco diretamente.
-
-Cada rota é declarada com os decorators do Flask:
-    @app.get("/rota")   → responde a requisições GET
-    @app.post("/rota")  → responde a requisições POST
-
-Como executar (dentro de backend-python/, com o ambiente virtual ativo):
-    flask --app app.main run --port 8000
-"""
-
 import logging
 import os
 from typing import Optional
@@ -37,10 +23,9 @@ from app.services.stats_service import build_stats
 logger = logging.getLogger("mdb.tools")
 
 app = Flask(__name__)
-app.json.sort_keys = False   # mantém a ordem dos campos no JSON de resposta
-app.json.ensure_ascii = False  # acentos legíveis no JSON
+app.json.sort_keys = False
+app.json.ensure_ascii = False
 
-# CORS: libera o front-end (outra porta) a chamar esta API pelo navegador.
 allowed_origins = os.getenv(
     "CORS_ALLOWED_ORIGINS", "http://localhost:5500,http://localhost:8081,http://localhost:3000"
 ).split(",")
@@ -48,30 +33,24 @@ CORS(app, origins=allowed_origins, supports_credentials=True)
 
 
 def java_client() -> JavaApiClient:
-    """Cliente HTTP da API Java. Os testes trocam por um cliente falso via app.config["JAVA_CLIENT"]."""
+    # nos testes, app.config["JAVA_CLIENT"] recebe um cliente falso
     return current_app.config.get("JAVA_CLIENT") or get_java_client()
 
 
-# ---------------------------------------------------------------------------
-# Leitura e validação de parâmetros
-# ---------------------------------------------------------------------------
-
 def query_int(name: str, minimum: int = 1, maximum: int = 5) -> Optional[int]:
-    """Lê um parâmetro inteiro opcional da query string (?minDifficulty=2), validando o intervalo."""
     raw = request.args.get(name)
     if raw is None or raw == "":
         return None
     try:
         value = int(raw)
     except ValueError as exc:
-        raise ApiError(422, f"Dados inválidos — {name}: deve ser um número inteiro") from exc
+        raise ApiError(422, f"Dados inválidos: {name} deve ser um número inteiro") from exc
     if not minimum <= value <= maximum:
-        raise ApiError(422, f"Dados inválidos — {name}: deve estar entre {minimum} e {maximum}")
+        raise ApiError(422, f"Dados inválidos: {name} deve estar entre {minimum} e {maximum}")
     return value
 
 
 def problem_filters() -> dict:
-    """Filtros opcionais comuns ao sorteio e à exportação."""
     return {
         "area": request.args.get("area") or None,
         "tag": request.args.get("tag") or None,
@@ -80,13 +59,8 @@ def problem_filters() -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# Rotas
-# ---------------------------------------------------------------------------
-
 @app.get("/health")
 def health():
-    """Saúde do serviço Python e, de quebra, se ele consegue alcançar a API Java."""
     try:
         java_status = "ok" if java_client().ping() else "error"
     except httpx.HTTPError:
@@ -96,7 +70,6 @@ def health():
 
 @app.get("/tools/random-problem")
 def random_problem():
-    """Sorteia um problema que respeite os filtros opcionais (?area=&tag=&minDifficulty=&maxDifficulty=)."""
     filters = problem_filters()
     try:
         problem = pick_random_problem(java_client(), get_settings(), **filters)
@@ -107,15 +80,10 @@ def random_problem():
 
 @app.post("/tools/mock-exam")
 def mock_exam():
-    """Gera um simulado: sorteia, sem repetição, `quantity` problemas compatíveis com os filtros.
-
-    Corpo JSON: {"quantity": 5, "area": "Algebra", "minDifficulty": 1, "maxDifficulty": 5,
-                 "includeStatements": true}
-    """
     body = request.get_json(silent=True)
     if not isinstance(body, dict):
         raise ApiError(400, "Envie um corpo JSON, por exemplo {\"quantity\": 5}.")
-    exam_request = MockExamRequest.model_validate(body)  # ValidationError → 422 (handler abaixo)
+    exam_request = MockExamRequest.model_validate(body)
 
     client = java_client()
     try:
@@ -124,27 +92,19 @@ def mock_exam():
         raise ApiError(400, str(exc)) from exc
 
     if exam_request.includeStatements:
-        # Busca o detalhe completo de cada questão na API Java (enunciado, dica e solução).
         problems = [client.get_problem(p["id"]) for p in problems]
 
-    response = MockExamResponse(problems=problems)
-    return jsonify(response.model_dump())
+    return jsonify(MockExamResponse(problems=problems).model_dump())
 
 
 @app.get("/tools/stats")
 def catalog_stats():
-    """Estatísticas do catálogo: total, distribuição por área e por dificuldade, tópicos frequentes."""
     stats = build_stats(java_client(), get_settings().max_pool_size_for_selection)
     return jsonify(CatalogStats.model_validate(stats).model_dump())
 
 
 @app.post("/tools/csv/import")
 def import_csv():
-    """Importa problemas de um CSV (multipart, campo "file"). Exige token de ADMIN.
-
-    Cabeçalho do CSV: id,titulo,enunciado,area,dificuldade,dica,solucao,fonte.
-    Linhas inválidas são reportadas, mas não impedem a importação das válidas.
-    """
     token = extract_bearer_token(request.headers.get("Authorization"))
     client = java_client()
     require_admin(token, client)
@@ -165,19 +125,16 @@ def import_csv():
     if not rows:
         raise ApiError(400, "O CSV não contém linhas de dados.")
 
-    result = import_rows(rows, token, client)
-    return jsonify(result.model_dump())
+    return jsonify(import_rows(rows, token, client).model_dump())
 
 
 @app.get("/tools/csv/export")
 def export_csv():
-    """Exporta o catálogo (com filtros opcionais) para um arquivo CSV. Exige token de ADMIN."""
     token = extract_bearer_token(request.headers.get("Authorization"))
     client = java_client()
     require_admin(token, client)
 
-    filters = problem_filters()
-    summaries = fetch_pool(client, max_pool_size=get_settings().max_pool_size_for_selection, **filters)
+    summaries = fetch_pool(client, max_pool_size=get_settings().max_pool_size_for_selection, **problem_filters())
     details = [client.get_problem(summary["id"], token) for summary in summaries]
 
     return Response(
@@ -187,10 +144,7 @@ def export_csv():
     )
 
 
-# ---------------------------------------------------------------------------
-# Tratamento global de erros: toda falha vira JSON {"detail": "..."} com o status
-# HTTP adequado, sem derrubar o serviço nem expor stack traces.
-# ---------------------------------------------------------------------------
+# Tratamento de erros: toda falha vira {"detail": "..."} com o status adequado.
 
 @app.errorhandler(ApiError)
 def handle_api_error(exc: ApiError):
@@ -204,18 +158,16 @@ def handle_validation_error(exc: ValidationError):
         field = ".".join(str(part) for part in err.get("loc", []))
         message = str(err.get("msg", "valor inválido")).removeprefix("Value error, ")
         errors.append(f"{field}: {message}" if field else message)
-    return jsonify(detail="Dados inválidos — " + "; ".join(errors), errors=errors), 422
+    return jsonify(detail="Dados inválidos: " + "; ".join(errors), errors=errors), 422
 
 
 @app.errorhandler(JavaApiError)
 def handle_java_api_error(exc: JavaApiError):
-    """Erros devolvidos pela API Java são repassados com o mesmo status e mensagem."""
     return jsonify(detail=exc.message), exc.status_code
 
 
 @app.errorhandler(httpx.HTTPError)
 def handle_java_unreachable(exc: httpx.HTTPError):
-    """API Java fora do ar ou lenta demais: responde 503 em vez de um 500 genérico."""
     logger.warning("Falha ao comunicar com a API Java: %s", exc)
     return jsonify(detail="A API Java está indisponível no momento. Verifique se ela está rodando na porta 8080."), 503
 
@@ -233,5 +185,4 @@ def handle_unexpected(exc: Exception):
 
 
 if __name__ == "__main__":
-    # Alternativa ao comando "flask": python -m app.main
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "8000")))

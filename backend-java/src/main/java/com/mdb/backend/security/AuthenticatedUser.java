@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 
-/** UserDetails minimo baseado apenas nas claims do JWT (evita ida ao banco a cada requisicao). */
 public class AuthenticatedUser extends User {
 
     private final Long id;

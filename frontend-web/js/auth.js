@@ -1,7 +1,5 @@
-// Login e cadastro → API Java (/api/auth/login e /api/auth/register).
-
 function safeNextUrl() {
-    // Só aceita caminhos internos (evita redirecionamento aberto para outro domínio).
+    // só aceita caminhos internos
     const next = new URLSearchParams(window.location.search).get('next');
     return next && next.startsWith('/') && !next.startsWith('//') ? next : '/index.html';
 }

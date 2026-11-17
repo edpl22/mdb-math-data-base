@@ -1,8 +1,4 @@
-// Monta o cabeçalho e o rodapé de forma consistente em todas as páginas.
-// Cada página define `window.MDB_ACTIVE_PAGE` antes de incluir este script.
-
 async function goToRandomProblem(params = {}) {
-    // Sorteio é feito pela API Python (GET /tools/random-problem).
     const problem = await PythonApi.randomProblem(params);
     window.location.href = `/pages/problem.html?id=${problem.id}`;
 }
@@ -43,7 +39,7 @@ function renderHeader() {
             <button class="nav-burger" id="nav-burger" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobile-nav">
                 <span></span><span></span><span></span>
             </button>
-            <a class="brand" href="/index.html" title="MDB — Math Data Base">MDB<span class="brand-sub">math data base</span></a>
+            <a class="brand" href="/index.html" title="MDB - Math Data Base">MDB<span class="brand-sub">math data base</span></a>
             <nav class="main-nav" aria-label="Principal">${navLinks.join('')}</nav>
             <div class="nav-search">
                 <form id="nav-search-form" class="nav-search-input" role="search">
@@ -100,7 +96,6 @@ function renderHeader() {
         window.location.href = `/pages/catalog.html${text ? `?text=${encodeURIComponent(text)}` : ''}`;
     });
 
-    // Ctrl/Cmd+K foca a busca.
     document.addEventListener('keydown', (evt) => {
         if ((evt.ctrlKey || evt.metaKey) && evt.key.toLowerCase() === 'k') {
             evt.preventDefault();
@@ -118,11 +113,10 @@ function renderFooter() {
     if (!mount) return;
     mount.innerHTML = `
         <div class="container footer-inner">
-            <span>MDB — Math Data Base · Projeto Final · Laboratório de Programação II</span>
+            <span>MDB - Math Data Base · Projeto Final · Laboratório de Programação II</span>
         </div>`;
 }
 
-/** Consulta o health check de cada API e pinta o indicador do rodapé. */
 async function checkApiStatus() {
     const check = async (id, fn) => {
         const el = document.getElementById(id);

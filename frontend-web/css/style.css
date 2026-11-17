@@ -1,14 +1,9 @@
-/* ==========================================================================
-   MDB — Math Data Base — sistema de design
-   Ver docs/DESIGN_SYSTEM.md para a documentação completa do sistema.
-   Estrutura: fontes, tokens, reset, layout, navbar, componentes, páginas,
-   responsividade.
-   ========================================================================== */
+/* MDB - Math Data Base */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-    /* --- cor --- */
+    /* cor */
     --bg-page: #F7F7F5;
     --bg-surface: #FFFFFF;
     --bg-subtle: #F0F0EE;
@@ -31,18 +26,18 @@
     --danger: #A32626;
     --danger-soft: #FBEAEA;
 
-    /* --- identidade de cada backend (selos e inspetor de integração) --- */
+    /* cores das APIs */
     --api-java: #A4511F;
     --api-java-soft: #F7ECE4;
     --api-python: #5B3FA0;
     --api-python-soft: #EFEAF8;
 
-    /* --- forma --- */
+    /* forma */
     --radius: 0px;
     --radius-soft: 2px;
     --shadow-1: 0 1px 2px rgba(17, 17, 17, 0.06);
 
-    /* --- espaçamento --- */
+    /* espaçamento */
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -52,7 +47,7 @@
     --space-7: 48px;
     --space-8: 64px;
 
-    /* --- tipografia --- */
+    /* tipografia */
     --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
@@ -65,7 +60,7 @@
     --text-2xl: 28px;
     --text-3xl: 36px;
 
-    /* --- layout --- */
+    /* layout */
     --max-width-wide: 1440px;
     --max-width-read: 760px;
     --navbar-height: 60px;
@@ -124,7 +119,6 @@ button { font-family: inherit; }
 main { flex: 1; }
 main.page { padding-top: var(--space-6); padding-bottom: var(--space-8); }
 
-/* mono label técnica: usada em tags, IDs, headers de tabela, badges */
 .label-mono {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -133,9 +127,7 @@ main.page { padding-top: var(--space-6); padding-bottom: var(--space-8); }
     color: var(--text-secondary);
 }
 
-/* ==========================================================================
-   Navbar
-   ========================================================================== */
+/* Navbar */
 
 .site-header {
     background: var(--bg-surface);
@@ -248,9 +240,7 @@ main.page { padding-top: var(--space-6); padding-bottom: var(--space-8); }
     margin-left: var(--space-1);
 }
 
-/* ==========================================================================
-   Botões
-   ========================================================================== */
+/* Botões */
 
 .btn {
     display: inline-flex;
@@ -293,7 +283,7 @@ main.page { padding-top: var(--space-6); padding-bottom: var(--space-8); }
     display: inline-flex; align-items: center; justify-content: center;
 }
 
-/* toggle usado em favoritar/quero fazer/já fiz */
+/* favoritar / quero resolver / resolvido */
 .btn-toggle {
     background: var(--bg-surface);
     color: var(--text-primary);
@@ -306,9 +296,7 @@ main.page { padding-top: var(--space-6); padding-bottom: var(--space-8); }
     color: var(--accent);
 }
 
-/* ==========================================================================
-   Formulários
-   ========================================================================== */
+/* Formulários */
 
 .form-group { margin-bottom: var(--space-4); }
 .field-label {
@@ -364,9 +352,7 @@ select { cursor: pointer; }
     border-top: 1px solid var(--border-default);
 }
 
-/* ==========================================================================
-   Tags / labels de área
-   ========================================================================== */
+/* Tags / labels de área */
 
 .tag {
     display: inline-flex;
@@ -392,9 +378,7 @@ select { cursor: pointer; }
     font-weight: 600;
 }
 
-/* ==========================================================================
-   Indicador de dificuldade
-   ========================================================================== */
+/* Indicador de dificuldade */
 
 .difficulty-inline { display: inline-flex; align-items: center; gap: var(--space-2); }
 .difficulty-value { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
@@ -426,9 +410,7 @@ select { cursor: pointer; }
 .difficulty-select button:hover { background: var(--bg-subtle); }
 .difficulty-select button.selected { background: var(--bg-inverse); color: var(--text-on-inverse); }
 
-/* ==========================================================================
-   Listagem de problemas (linhas densas)
-   ========================================================================== */
+/* Listagem de problemas (linhas densas) */
 
 .problem-list { border-top: 1px solid var(--border-default); }
 
@@ -462,9 +444,7 @@ select { cursor: pointer; }
 
 .problem-list-empty { padding: var(--space-8) 0; }
 
-/* ==========================================================================
-   Sidebar de filtros (catálogo)
-   ========================================================================== */
+/* Sidebar de filtros (catálogo) */
 
 .catalog-layout {
     display: grid;
@@ -531,9 +511,7 @@ select { cursor: pointer; }
 
 .filters-toggle { display: none; }
 
-/* ==========================================================================
-   Estados: loading / vazio / alertas / toast
-   ========================================================================== */
+/* Estados: loading / vazio / alertas / toast */
 
 .loading-row {
     display: flex; align-items: center; gap: var(--space-3);
@@ -595,9 +573,7 @@ select { cursor: pointer; }
 .toast-error { border-left-color: #F87171; }
 .toast-info { border-left-color: #93C5FD; }
 
-/* ==========================================================================
-   Home
-   ========================================================================== */
+/* Home */
 
 .page-intro {
     padding: var(--space-6) 0 var(--space-5);
@@ -661,9 +637,7 @@ select { cursor: pointer; }
 .action-block h3 { margin-bottom: 0; }
 .action-block p { margin-bottom: 0; font-size: var(--text-sm); }
 
-/* ==========================================================================
-   Página do problema
-   ========================================================================== */
+/* Página do problema */
 
 .breadcrumb {
     font-family: var(--font-mono);
@@ -708,9 +682,7 @@ select { cursor: pointer; }
 .difficulty-panel { margin-top: var(--space-7); padding-top: var(--space-6); border-top: 1px solid var(--border-default); }
 .difficulty-panel .dp-current { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); }
 
-/* ==========================================================================
-   Tabs (perfil)
-   ========================================================================== */
+/* Tabs (perfil) */
 
 .tabs { display: flex; gap: var(--space-5); border-bottom: 1px solid var(--border-default); margin-bottom: var(--space-5); }
 .tab-btn {
@@ -724,9 +696,7 @@ select { cursor: pointer; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-/* ==========================================================================
-   Admin
-   ========================================================================== */
+/* Admin */
 
 .admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: var(--space-7); align-items: start; }
 
@@ -760,9 +730,7 @@ table.data-table tr:last-child td { border-bottom: none; }
 table.data-table td.mono { font-family: var(--font-mono); color: var(--text-tertiary); }
 table.data-table .row-actions { display: flex; gap: var(--space-2); }
 
-/* ==========================================================================
-   Simulados
-   ========================================================================== */
+/* Simulados */
 
 .composition-preview { border: 1px solid var(--border-default); }
 .composition-row {
@@ -776,9 +744,7 @@ table.data-table .row-actions { display: flex; gap: var(--space-2); }
 .composition-row .level-count { font-family: var(--font-mono); font-weight: 600; }
 .composition-row .level-count.zero { color: var(--danger); }
 
-/* ==========================================================================
-   Paginação
-   ========================================================================== */
+/* Paginação */
 
 .pagination { display: flex; gap: var(--space-3); justify-content: center; margin-top: var(--space-6); align-items: center; }
 .pagination button {
@@ -789,9 +755,7 @@ table.data-table .row-actions { display: flex; gap: var(--space-2); }
 .pagination button:disabled { opacity: .4; cursor: not-allowed; }
 .pagination .page-info { color: var(--text-tertiary); font-size: var(--text-sm); font-family: var(--font-mono); }
 
-/* ==========================================================================
-   Rodapé
-   ========================================================================== */
+/* Rodapé */
 
 .site-footer {
     border-top: 1px solid var(--border-default);
@@ -802,9 +766,7 @@ table.data-table .row-actions { display: flex; gap: var(--space-2); }
     text-align: center;
 }
 
-/* ==========================================================================
-   Utilitários
-   ========================================================================== */
+/* Utilitários */
 
 .flex { display: flex; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
@@ -818,9 +780,7 @@ table.data-table .row-actions { display: flex; gap: var(--space-2); }
 .text-center { text-align: center; }
 .hidden { display: none !important; }
 
-/* ==========================================================================
-   Responsividade
-   ========================================================================== */
+/* Responsividade */
 
 @media (max-width: 960px) {
     .container { padding: 0 var(--space-4); }
@@ -856,11 +816,6 @@ table.data-table .row-actions { display: flex; gap: var(--space-2); }
     .form-panel { padding: var(--space-5); }
 }
 
-/* ==========================================================================
-   Adições do Projeto Final: selos de API, rodapé com status, inspetor de
-   integração, menu mobile, estatísticas, chips de filtro e prova imprimível.
-   ========================================================================== */
-
 code {
     font-family: var(--font-mono);
     font-size: 0.92em;
@@ -881,7 +836,7 @@ code {
 }
 .page-title-row p { margin-top: var(--space-1); }
 
-/* --- marca --- */
+/* marca */
 .brand .brand-sub {
     font-weight: 400;
     font-size: 10px;
@@ -890,7 +845,7 @@ code {
     text-transform: lowercase;
 }
 
-/* --- selo de API --- */
+/* selo de API */
 .api-badge {
     display: inline-flex;
     align-items: center;
@@ -914,7 +869,7 @@ code {
 .api-badge-java { color: var(--api-java); background: var(--api-java-soft); }
 .api-badge-python { color: var(--api-python); background: var(--api-python-soft); }
 
-/* --- rodapé com status das APIs --- */
+/* rodapé com status das APIs */
 .site-footer { text-align: left; }
 .footer-inner {
     display: flex;
@@ -940,7 +895,7 @@ code {
 }
 .footer-inspector-btn:hover { border-color: var(--text-primary); }
 
-/* --- inspetor de integração --- */
+/* inspetor de integração */
 .inspector {
     position: fixed;
     top: 0; right: 0; bottom: 0;
@@ -997,7 +952,7 @@ body.inspector-open { padding-right: min(440px, 100vw); }
 .inspector-meta { grid-column: 1 / -1; color: var(--text-tertiary); font-size: 10px; }
 .inspector-empty { padding: var(--space-6) var(--space-4); color: var(--text-tertiary); font-size: var(--text-sm); }
 
-/* --- menu mobile --- */
+/* menu mobile */
 .nav-burger {
     display: none;
     flex-direction: column;
@@ -1028,7 +983,7 @@ body.inspector-open { padding-right: min(440px, 100vw); }
 .mobile-nav a:last-child { border-bottom: none; }
 .mobile-nav a.active { color: var(--accent); }
 
-/* --- estatísticas / KPIs --- */
+/* estatísticas / KPIs */
 .stats-kpis {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1062,7 +1017,7 @@ body.inspector-open { padding-right: min(440px, 100vw); }
 
 .tag-link:hover { border-color: var(--text-primary); color: var(--text-primary); text-decoration: none; }
 
-/* --- catálogo: barra de resultados e chips --- */
+/* catálogo: barra de resultados e chips */
 .results-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-3); min-height: 28px; }
 .active-filters { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .chip {
@@ -1076,17 +1031,17 @@ body.inspector-open { padding-right: min(440px, 100vw); }
 }
 .chip:hover { background: var(--accent); color: var(--text-on-inverse); }
 
-/* --- página do problema --- */
+/* página do problema */
 .problem-topbar { margin-bottom: var(--space-3); gap: var(--space-3); flex-wrap: wrap; }
 .problem-topbar .breadcrumb { margin-bottom: 0; }
 .actions-spacer { flex: 1; }
 .tab-count { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-tertiary); margin-left: 4px; }
 
-/* --- login: contas de demonstração --- */
+/* login: contas de demonstração */
 .demo-accounts { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px dashed var(--border-default); text-align: center; }
 .demo-buttons { display: flex; gap: var(--space-2); justify-content: center; margin-top: var(--space-2); flex-wrap: wrap; }
 
-/* --- simulado: prova imprimível --- */
+/* simulado: prova imprimível */
 .exam-toolbar {
     display: flex; justify-content: space-between; align-items: flex-end;
     gap: var(--space-4); flex-wrap: wrap;
@@ -1144,8 +1099,7 @@ body.inspector-open { padding-right: min(440px, 100vw); }
     .footer-inner { flex-direction: column; align-items: flex-start; }
 }
 
-/* Acrescente este trecho ao FINAL de frontend-web/css/style.css.
-   Oculta etiquetas de identificação de API sem afetar chamadas HTTP. */
+/* etiquetas de API ocultas */
 [data-badge],
 .api-badge,
 .api-label,

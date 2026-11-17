@@ -13,11 +13,6 @@ def fetch_pool(
     max_difficulty: Optional[int],
     max_pool_size: int,
 ) -> list[dict[str, Any]]:
-    """Busca no backend Java todos os problemas que atendem aos filtros, ate um limite.
-
-    Reaproveita o endpoint de busca ja existente (GET /api/problems) em vez de duplicar
-    a logica de filtragem no servico Python.
-    """
     pool: list[dict[str, Any]] = []
     page = 0
     while len(pool) < max_pool_size:

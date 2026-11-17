@@ -46,7 +46,7 @@ def import_rows(rows: list[dict[str, str]], token: str, client: JavaApiClient) -
     errors: list[CsvRowError] = []
     imported = 0
 
-    for index, row in enumerate(rows, start=2):  # linha 1 e o cabecalho
+    for index, row in enumerate(rows, start=2):  # linha 1 é o cabeçalho
         payload, error = _validate_row(row)
         if error:
             errors.append(CsvRowError(line=index, reason=error, raw=row))

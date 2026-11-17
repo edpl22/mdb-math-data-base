@@ -1,9 +1,3 @@
-// Cliente HTTP fino para as duas APIs:
-//   - API Java   (Spring Boot, porta 8080) → JavaApi   → rotas /api/...
-//   - API Python (Flask,       porta 8000) → PythonApi → rotas /tools/...
-// Centraliza tratamento de erros, injeção do token JWT e o registro de cada chamada
-// no "Inspetor de integração" (ver js/integration.js), que mostra qual API foi usada.
-
 const Auth = {
     TOKEN_KEY: 'mdb_token',
     USER_KEY: 'mdb_user',
@@ -44,8 +38,7 @@ class ApiError extends Error {
     }
 }
 
-// ---------- Registro de chamadas (alimenta o Inspetor de integração) ----------
-
+// log das chamadas, usado pelo inspetor de integração
 const ApiLog = {
     KEY: 'mdb_api_log',
     MAX: 80,
@@ -62,13 +55,7 @@ const ApiLog = {
         this.write(entries);
         window.dispatchEvent(new CustomEvent('mdb:api-call', { detail: entry }));
 
-        // Também no console do navegador, útil para a demonstração (F12 → Console).
-        const color = entry.api === 'java' ? '#A4511F' : '#5B3FA0';
-        console.info(
-            `%c ${entry.api === 'java' ? 'API JAVA :8080' : 'API PYTHON :8000'} %c ${entry.method} ${entry.path} → ${entry.status || 'falha'} (${entry.ms} ms)`,
-            `background:${color};color:#fff;font-weight:600;border-radius:2px`,
-            'color:inherit',
-        );
+        console.info(`[${entry.api}] ${entry.method} ${entry.path} ${entry.status || 'falha'} (${entry.ms} ms)`);
     },
     clear() {
         this.write([]);
@@ -89,7 +76,6 @@ function buildQuery(params = {}) {
     return str ? `?${str}` : '';
 }
 
-/** Faz a requisição, registra no log e converte erros (Java: {message}; Python: {detail}) em ApiError. */
 async function request(baseUrl, path, { method = 'GET', body, auth = false, isForm = false, raw = false } = {}) {
     const headers = {};
     if (!isForm && body !== undefined) {
@@ -128,7 +114,7 @@ async function request(baseUrl, path, { method = 'GET', body, auth = false, isFo
     logEntry.ms = Math.round(performance.now() - started);
     ApiLog.add(logEntry);
 
-    // Token expirado/inválido em rota autenticada: encerra a sessão local.
+    // token expirado
     if (response.status === 401 && auth && Auth.getToken()) {
         Auth.clearSession();
         if (typeof showToast === 'function') showToast('Sua sessão expirou. Entre novamente.', 'error');
@@ -153,8 +139,7 @@ async function request(baseUrl, path, { method = 'GET', body, auth = false, isFo
     return payload;
 }
 
-// ---------- API Java (Spring Boot) — núcleo: usuários, problemas, áreas, tags, avaliações ----------
-
+// API Java (porta 8080)
 const JavaApi = {
     health: () => request(CONFIG.JAVA_API_BASE, '/api/health'),
 
@@ -189,8 +174,7 @@ const JavaApi = {
     myProblems: () => request(CONFIG.JAVA_API_BASE, '/api/users/me/problems', { auth: true }),
 };
 
-// ---------- API Python (Flask) — ferramentas: sorteio, simulado, estatísticas, CSV ----------
-
+// API Python (porta 8000)
 const PythonApi = {
     health: () => request(CONFIG.PYTHON_API_BASE, '/health'),
 

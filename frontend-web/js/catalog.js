@@ -1,5 +1,3 @@
-// Catálogo: busca e filtros na API Java (GET /api/problems); sorteio filtrado na API Python.
-
 const PAGE_SIZE = 20;
 
 const state = {
@@ -100,7 +98,6 @@ function renderDifficultyFilters() {
     });
 }
 
-/** "Chips" com os filtros ativos — cada um pode ser removido individualmente. */
 function renderActiveFilters() {
     const el = document.getElementById('active-filters');
     const chips = [];
@@ -187,7 +184,6 @@ async function runSearch() {
     }
 }
 
-// Busca por texto: Enter imediato, ou automaticamente após uma pausa na digitação.
 let textDebounce;
 const textInput = document.getElementById('f-text');
 textInput.addEventListener('keydown', (evt) => {
@@ -231,7 +227,6 @@ document.getElementById('filters-toggle').addEventListener('click', (evt) => {
     document.getElementById('filters-toggle-icon').textContent = open ? '−' : '+';
 });
 
-// Sorteio respeitando os filtros atuais → API Python (GET /tools/random-problem).
 document.getElementById('random-filtered-btn').addEventListener('click', async (evt) => {
     try {
         await withButtonLoading(evt.currentTarget, 'Sorteando…', () => goToRandomProblem({

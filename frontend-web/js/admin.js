@@ -1,4 +1,3 @@
-// Painel administrativo: CRUD de problemas e áreas → API Java; CSV → API Python.
 if (!Auth.isAdmin()) {
     window.location.replace(Auth.isLoggedIn() ? '/index.html' : '/pages/login.html?next=/pages/admin.html');
     throw new Error('Acesso restrito a administradores.');
@@ -6,7 +5,7 @@ if (!Auth.isAdmin()) {
 
 fillBadges();
 
-// ---------- Navegação lateral ----------
+// navegação lateral
 document.querySelectorAll('#admin-nav button').forEach((btn) => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('#admin-nav button').forEach((b) => b.classList.remove('active'));
@@ -16,7 +15,7 @@ document.querySelectorAll('#admin-nav button').forEach((btn) => {
     });
 });
 
-// ---------- Overview ----------
+// visão geral
 async function loadOverview() {
     const el = document.getElementById('overview-stats');
     try {
@@ -35,7 +34,7 @@ async function loadOverview() {
     }
 }
 
-// ---------- Problemas ----------
+// problemas
 let allAreas = [];
 
 async function loadAreasIntoSelects() {
@@ -190,7 +189,7 @@ document.getElementById('problem-form').addEventListener('submit', async (evt) =
     }
 });
 
-// ---------- Áreas ----------
+// áreas
 async function loadAreasList() {
     const el = document.getElementById('areas-list');
     try {
@@ -218,7 +217,7 @@ document.getElementById('area-form').addEventListener('submit', async (evt) => {
     }
 });
 
-// ---------- Tags (leitura) ----------
+// tópicos
 async function loadTagsList() {
     const el = document.getElementById('tags-list');
     try {
@@ -233,7 +232,7 @@ async function loadTagsList() {
     }
 }
 
-// ---------- CSV ----------
+// CSV (API Python)
 document.getElementById('import-form').addEventListener('submit', async (evt) => {
     evt.preventDefault();
     const alertBox = document.getElementById('import-alert');
@@ -279,7 +278,6 @@ document.getElementById('export-btn').addEventListener('click', async () => {
     }
 });
 
-// ---------- Init ----------
 loadOverview();
 loadProblemsTable();
 loadAreasList();

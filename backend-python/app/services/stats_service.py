@@ -6,8 +6,7 @@ from app.services.selection_service import fetch_pool
 
 
 def effective_difficulty(problem: dict[str, Any]) -> int:
-    """Dificuldade usada nas estatísticas: a média comunitária (arredondada) quando o problema
-    já foi avaliado, senão a dificuldade inicial cadastrada."""
+    # média da comunidade se houver avaliações; senão, a dificuldade inicial
     community = problem.get("communityDifficulty")
     if community is not None:
         return max(1, min(5, round(community)))
@@ -15,7 +14,6 @@ def effective_difficulty(problem: dict[str, Any]) -> int:
 
 
 def build_stats(client: JavaApiClient, max_pool_size: int) -> dict[str, Any]:
-    """Agrega o catálogo inteiro (lido da API Java) em números para o painel da home."""
     pool = fetch_pool(client, None, None, None, None, max_pool_size)
 
     by_area = Counter(p.get("area", "—") for p in pool)

@@ -11,10 +11,6 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Endpoint público de verificação de saúde. O frontend o consulta para exibir o indicador
- * "API Java online/offline" no rodapé.
- */
 @RestController
 @RequestMapping("/api/health")
 @Tag(name = "Health")

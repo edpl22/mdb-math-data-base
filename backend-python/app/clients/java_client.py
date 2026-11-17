@@ -6,8 +6,6 @@ from app.core.config import Settings, get_settings
 
 
 class JavaApiError(Exception):
-    """Erro retornado pela API Java, repassado ao cliente do servico Python."""
-
     def __init__(self, status_code: int, message: str):
         self.status_code = status_code
         self.message = message
@@ -15,13 +13,7 @@ class JavaApiError(Exception):
 
 
 class JavaApiClient:
-    """
-    Cliente HTTP para a API nucleo (Java/Spring Boot).
-
-    O microsservico Python nunca acessa o PostgreSQL diretamente: toda leitura e
-    escrita de problemas passa por aqui, reaproveitando as regras de negocio e a
-    autorizacao (JWT) ja implementadas no backend Java.
-    """
+    """Acesso à API Java. O serviço Python não acessa o banco diretamente."""
 
     def __init__(self, client: Optional[httpx.Client] = None, settings: Optional[Settings] = None):
         self._settings = settings or get_settings()
@@ -81,7 +73,6 @@ class JavaApiClient:
         return response.json()
 
     def ping(self) -> bool:
-        """True se a API Java responde ao health check (usado por GET /health)."""
         response = self._client.get("/api/health", timeout=2.0)
         return response.status_code == 200
 

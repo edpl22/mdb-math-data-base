@@ -1,8 +1,3 @@
-// Inspetor de integração: painel lateral que lista, em tempo real, cada requisição feita
-// pelo frontend, identificando se ela foi para a API Java (:8080) ou para a API Python (:8000).
-// Os dados vêm de ApiLog (js/api.js) e persistem durante a sessão do navegador, então é
-// possível navegar entre páginas e continuar vendo o histórico.
-
 (function () {
     const PREF_KEY = 'mdb_inspector_open';
 
@@ -90,7 +85,6 @@
             });
         });
 
-        // Atalho: Ctrl+I abre/fecha o inspetor.
         document.addEventListener('keydown', (evt) => {
             if ((evt.ctrlKey || evt.metaKey) && evt.key.toLowerCase() === 'i' && !evt.shiftKey) {
                 evt.preventDefault();

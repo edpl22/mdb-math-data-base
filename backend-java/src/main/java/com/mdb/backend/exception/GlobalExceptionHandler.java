@@ -19,10 +19,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
 
-/**
- * Converte toda exceção em uma resposta JSON padronizada ({@link ErrorResponse}), garantindo
- * que entradas inválidas ou recursos inexistentes nunca derrubem a aplicação nem vazem stack trace.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -78,13 +74,11 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), "Validation Error", message, details));
     }
 
-    /** JSON malformado ou valor de enum inexistente (ex.: status "FOO"). */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadable(HttpMessageNotReadableException ex) {
         return build(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido ou mal formatado.");
     }
 
-    /** Parâmetro de rota/query com tipo errado (ex.: /api/problems/abc). */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         return build(HttpStatus.BAD_REQUEST,

@@ -161,8 +161,6 @@ class ProblemControllerTest {
 
     @Test
     void regularUser_canMarkStatus_withoutAdminRole() throws Exception {
-        // Ensures the specific /status rule (authenticated) isn't accidentally
-        // captured by the generic /api/problems/** rule (hasRole ADMIN) — see SecurityConfig.
         String token = loginAndGetToken("demo@mdb.dev", "demo123");
         mockMvc.perform(put("/api/problems/7/status")
                         .header("Authorization", "Bearer " + token)

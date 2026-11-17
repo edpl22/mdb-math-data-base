@@ -1,6 +1,3 @@
-// Home: estatísticas (API Python), áreas e problemas recentes (API Java), atalhos.
-
-/** Estatísticas agregadas pela API Python (GET /tools/stats). */
 async function loadStats() {
     const el = document.getElementById('catalog-stats');
     try {
@@ -57,7 +54,6 @@ async function loadAreaIndex() {
             renderEmpty(el, 'Nenhuma área ainda', 'As áreas aparecem aqui assim que forem cadastradas.');
             return;
         }
-        // Uma contagem por área — chamadas leves (size=1, só para totalElements).
         const counts = await Promise.all(
             areas.map((a) => JavaApi.searchProblems({ area: a.name, size: 1 }).then((p) => p.totalElements).catch(() => 0))
         );

@@ -1,6 +1,3 @@
-// Gerador de simulados: a prévia do pool consulta a API Java; a geração em si é feita
-// pela API Python (POST /tools/mock-exam com includeStatements=true).
-
 const examState = { area: '', minDifficulty: 1, maxDifficulty: 5, poolTotal: null };
 
 async function loadAreaOptions() {
@@ -18,7 +15,6 @@ async function loadAreaOptions() {
     }
 }
 
-/** Quantos problemas existem, por nível, com os filtros atuais — prévia do pool disponível. */
 async function refreshComposition() {
     const el = document.getElementById('composition-preview');
     renderLoading(el, 'Verificando problemas disponíveis…');
@@ -55,7 +51,7 @@ function validateQuantity() {
     const tooMany = examState.poolTotal !== null && qty > examState.poolTotal;
     hint.classList.toggle('text-danger', tooMany);
     if (tooMany) {
-        hint.textContent = `Só há ${examState.poolTotal} disponíveis — reduza a quantidade ou amplie os filtros.`;
+        hint.textContent = `Só há ${examState.poolTotal} disponíveis. Reduza a quantidade ou amplie os filtros.`;
     } else if (examState.poolTotal !== null) {
         hint.textContent = `${plural(examState.poolTotal, 'problema disponível', 'problemas disponíveis')} com os filtros atuais`;
     }
@@ -123,8 +119,6 @@ function renderExam(problems, title) {
         `${plural(problems.length, 'questão sorteada', 'questões sorteadas')}, sem repetição.`;
     typesetMath(resultsEl);
 }
-
-
 
 async function generate() {
     const alertBox = document.getElementById('form-alert');

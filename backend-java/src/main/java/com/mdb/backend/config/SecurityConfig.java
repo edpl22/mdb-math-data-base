@@ -60,14 +60,12 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api/health")
                         .permitAll()
-                        // sub-recursos de usuario autenticado (avaliar dificuldade, favoritar/status)
-                        // precisam vir ANTES das regras genericas de /api/problems/** abaixo
+                        // regras específicas antes das genéricas de /api/problems/**
                         .requestMatchers(HttpMethod.GET, "/api/problems/*/difficulty").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/problems/*/difficulty").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/problems/*/difficulty").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/problems/*/status").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/problems/*/status").authenticated()
-                        // CRUD de problemas: leitura publica, escrita restrita a ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/problems/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/problems/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/problems/**").hasRole("ADMIN")

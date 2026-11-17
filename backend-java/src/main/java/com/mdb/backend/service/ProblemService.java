@@ -60,9 +60,7 @@ public class ProblemService {
 
         double min = minDifficulty == null ? 1.0 : minDifficulty;
         double max = maxDifficulty == null ? 5.0 : maxDifficulty;
-        // Usa "" como sentinela de "sem filtro de texto" (em vez de null): o driver JDBC do
-        // Postgres nao consegue inferir o tipo de um parametro null usado dentro de LOWER()/
-        // CONCAT() e o rejeita com "function lower(bytea) does not exist".
+        // "" em vez de null: o Postgres não infere o tipo de null dentro de LOWER()
         String normalizedText = (text == null || text.isBlank()) ? "" : text.trim();
 
         return problemRepository.search(normalizedText, areaId, tagId, min, max, pageable)

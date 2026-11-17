@@ -1,5 +1,3 @@
-// Perfil: dados do usuário e listas de favoritos / quero resolver / resolvidos (API Java).
-
 (function () {
     if (!Auth.isLoggedIn()) {
         window.location.href = `/pages/login.html?next=${encodeURIComponent('/pages/profile.html')}`;

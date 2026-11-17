@@ -1,5 +1,3 @@
-"""Testes das rotas HTTP da API Flask. A API Java é simulada com httpx.MockTransport."""
-
 import io
 
 import httpx
@@ -11,7 +9,6 @@ from tests.helpers import make_mock_client
 
 @pytest.fixture
 def client():
-    """Cliente de teste do Flask; cada teste injeta sua própria API Java falsa."""
     app.config["TESTING"] = True
     with app.test_client() as test_client:
         yield test_client
@@ -19,7 +16,6 @@ def client():
 
 
 def use_java(handler):
-    """Faz as rotas usarem uma API Java falsa que responde com `handler(request)`."""
     app.config["JAVA_CLIENT"] = make_mock_client(handler)
 
 
@@ -40,7 +36,6 @@ def _csv_upload(content: bytes, name: str = "problemas.csv") -> dict:
     return {"file": (io.BytesIO(content), name)}
 
 
-# ---------- sorteio e simulado ----------
 
 def test_mock_exam_endpoint_returns_400_when_not_enough_problems(client):
     use_java(_empty_page)
@@ -97,7 +92,6 @@ def test_mock_exam_without_json_body_returns_400(client):
     assert response.status_code == 400
 
 
-# ---------- estatísticas, saúde e erros gerais ----------
 
 def test_stats_endpoint_aggregates_catalog(client):
     use_java(lambda request: httpx.Response(200, json=_page(10)))
@@ -136,7 +130,6 @@ def test_unknown_route_returns_json_404(client):
     assert response.get_json() == {"detail": "Rota não encontrada."}
 
 
-# ---------- CSV (somente ADMIN) ----------
 
 def test_csv_import_requires_authorization_header(client):
     response = client.post("/tools/csv/import", data=_csv_upload(b"id,titulo\n1,x\n"))
